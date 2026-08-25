@@ -251,7 +251,8 @@
 
 # Sparse transduction: the dense engine's closed form, solved per class by
 # conjugate gradient on the similarity operator.
-.thg_sparse_transduction <- function(hg, labels, xi, type, edge_weights) {
+.thg_sparse_transduction <- function(hg, labels, xi, type, edge_weights,
+                                     normalization = "none") {
   n <- hg$n_nodes
   nodes <- hg$nodes
   lab <- if (!is.null(names(labels))) {
@@ -286,17 +287,12 @@
   }, numeric(n))
   dimnames(F_scores) <- list(nodes, classes)
 
-  win <- max.col(F_scores, ties.method = "first")
-  score <- F_scores[cbind(seq_len(n), win)]
-  runner <- vapply(seq_len(n), \(i) max(F_scores[i, -win[i]]), numeric(1))
+  predictions <- .thg_score_predictions(F_scores, lab, normalization)
 
-  predictions <- data.frame(
-    node = nodes, label = lab, predicted = classes[win],
-    score = score, margin = score - runner, stringsAsFactors = FALSE
-  )
   structure(
     list(predictions = predictions, classes = classes, scores = F_scores,
-         xi = xi, type = type, n_labeled = sum(!is.na(lab)), n_nodes = n,
+         xi = xi, type = type, normalization = normalization,
+         n_labeled = sum(!is.na(lab)), n_nodes = n,
          params = list(edge_weights = sim$w, sparse = TRUE)),
     class = "net_hypergraph_transduction"
   )

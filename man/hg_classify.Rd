@@ -4,7 +4,13 @@
 \alias{hg_classify}
 \title{Transductive label spreading on a hypergraph, as a tidy table}
 \usage{
-hg_classify(hg, labels, xi = 0.99, type = c("zhou", "random_walk"))
+hg_classify(
+  hg,
+  labels,
+  xi = 0.99,
+  type = c("zhou", "random_walk"),
+  normalization = c("none", "class_mass")
+)
 }
 \arguments{
 \item{hg}{A \code{\link[=text_hypergraph]{text_hypergraph()}} (or any Nestimate \code{net_hypergraph}).}
@@ -13,6 +19,12 @@ hg_classify(hg, labels, xi = 0.99, type = c("zhou", "random_walk"))
 under \code{nodes = "doc"}), values are their known class labels.}
 
 \item{xi, type}{Passed to \code{\link[=hypergraph_transduction]{hypergraph_transduction()}}.}
+
+\item{normalization}{Decision rule for turning spread scores into
+predictions: \code{"none"} (default, the raw Zhou 2006 argmax) or
+\code{"class_mass"} (class-mass normalization, Zhu et al. 2003). Use
+\code{"class_mass"} when the labeled seeds are class-imbalanced -- the raw
+rule can collapse every prediction onto the majority class.}
 }
 \value{
 A base \code{data.frame}, one row per node, with columns \code{node},

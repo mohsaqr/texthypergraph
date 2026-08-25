@@ -239,6 +239,12 @@ hypergraph_cluster <- function(hg, k,
 #'   larger values weight the hypergraph structure more relative to the
 #'   initial labels.
 #' @param type,edge_weights Passed to [hypergraph_laplacian()].
+#' @param normalization Decision rule applied to the score matrix before
+#'   the argmax. `"none"` (default) is the raw Zhou (2006) rule.
+#'   `"class_mass"` divides each class column by its total spread mass
+#'   (class-mass normalization, Zhu et al. 2003) before the argmax; use it
+#'   when the labeled seeds are class-imbalanced, where the raw rule can
+#'   collapse every prediction onto the majority class.
 #'
 #' @return An object of class `net_hypergraph_transduction`: a list with
 #'   `$predictions` (data.frame, one row per node: `node`, `label` (given,
@@ -251,6 +257,9 @@ hypergraph_cluster <- function(hg, k,
 #' @references
 #' Zhou, D., Huang, J., & Scholkopf, B. (2006). Learning with hypergraphs:
 #' Clustering, classification, and embedding. \emph{NeurIPS 19}.
+#'
+#' Zhu, X., Ghahramani, Z., & Lafferty, J. (2003). Semi-supervised learning
+#' using Gaussian fields and harmonic functions. \emph{ICML 20}.
 #'
 #' @examples
 #' events <- data.frame(
@@ -267,8 +276,10 @@ hypergraph_cluster <- function(hg, k,
 #' @export
 hypergraph_transduction <- function(hg, labels, xi = 0.99,
                                     type = c("zhou", "random_walk"),
-                                    edge_weights = NULL) {
+                                    edge_weights = NULL,
+                                    normalization = c("none", "class_mass")) {
   type <- match.arg(type)
+  normalization <- match.arg(normalization)
   .hl_validate_hg(hg)
   stopifnot(
     "`xi` must be a single number in (0, 1)" =
@@ -308,20 +319,7 @@ hypergraph_transduction <- function(hg, labels, xi = 0.99,
   F_scores <- (1 - xi) * solve(diag(n) - xi * S, Y)
   dimnames(F_scores) <- list(nodes, classes)
 
-  win <- max.col(F_scores, ties.method = "first")
-  score <- F_scores[cbind(seq_len(n), win)]
-  runner <- vapply(seq_len(n), function(i) {
-    max(F_scores[i, -win[i]])
-  }, numeric(1L))
-
-  predictions <- data.frame(
-    node      = nodes,
-    label     = lab,
-    predicted = classes[win],
-    score     = score,
-    margin    = score - runner,
-    stringsAsFactors = FALSE
-  )
+  predictions <- .thg_score_predictions(F_scores, lab, normalization)
 
   structure(
     list(
@@ -330,11 +328,48 @@ hypergraph_transduction <- function(hg, labels, xi = 0.99,
       scores      = F_scores,
       xi          = xi,
       type        = type,
+      normalization = normalization,
       n_labeled   = sum(!is.na(lab)),
       n_nodes     = n,
       params      = list(edge_weights = parts$w)
     ),
     class = "net_hypergraph_transduction"
+  )
+}
+
+# Decision rule on a node x class score matrix. "none" is the Zhou (2006)
+# argmax on the raw spread scores; "class_mass" first divides each class
+# column by its total spread mass (class-mass normalization, Zhu et al.
+# 2003), which prevents an imbalanced seed set from collapsing every
+# prediction onto the majority class. `score` and `margin` are reported on
+# the matrix the argmax actually used.
+.thg_score_predictions <- function(F_scores, lab, normalization) {
+  decision <- if (identical(normalization, "class_mass")) {
+    mass <- colSums(F_scores)
+    if (any(mass <= 0)) {
+      stop(errorCondition(
+        "a class received zero total spread mass; class_mass normalization is undefined",
+        class = "thg_bad_input", call = NULL
+      ))
+    }
+    sweep(F_scores, 2L, mass, "/")
+  } else {
+    F_scores
+  }
+  n <- nrow(F_scores)
+  classes <- colnames(F_scores)
+  win <- max.col(decision, ties.method = "first")
+  score <- decision[cbind(seq_len(n), win)]
+  runner <- vapply(seq_len(n), function(i) {
+    max(decision[i, -win[i]])
+  }, numeric(1L))
+  data.frame(
+    node      = rownames(F_scores),
+    label     = lab,
+    predicted = classes[win],
+    score     = score,
+    margin    = score - runner,
+    stringsAsFactors = FALSE
   )
 }
 

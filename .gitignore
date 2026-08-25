@@ -8,3 +8,5 @@ tmp/
 *.Rcheck/
 *.tar.gz
 docs/
+benchmarks/data/
+benchmarks/results/

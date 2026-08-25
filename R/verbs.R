@@ -183,6 +183,11 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
 #' @param labels Named character vector: names are node identifiers (documents
 #'   under `nodes = "doc"`), values are their known class labels.
 #' @param xi,type Passed to [hypergraph_transduction()].
+#' @param normalization Decision rule for turning spread scores into
+#'   predictions: `"none"` (default, the raw Zhou 2006 argmax) or
+#'   `"class_mass"` (class-mass normalization, Zhu et al. 2003). Use
+#'   `"class_mass"` when the labeled seeds are class-imbalanced -- the raw
+#'   rule can collapse every prediction onto the majority class.
 #' @return A base `data.frame`, one row per node, with columns `node`,
 #'   `label` (the given label or `NA`), `predicted`, `score`, and `margin`.
 #' @examples
@@ -195,14 +200,18 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
 #' hg_classify(hg, labels = c(cooking_1 = "cooking", space_1 = "space"))
 #' @export
 hg_classify <- function(hg, labels, xi = 0.99,
-                        type = c("zhou", "random_walk")) {
+                        type = c("zhou", "random_walk"),
+                        normalization = c("none", "class_mass")) {
   .thg_check_hg(hg)
   type <- match.arg(type)
+  normalization <- match.arg(normalization)
   fit <- if (.thg_is_sparse(hg)) {
     .thg_sparse_transduction(hg, labels = labels, xi = xi, type = type,
-                             edge_weights = NULL)
+                             edge_weights = NULL,
+                             normalization = normalization)
   } else {
-    hypergraph_transduction(hg, labels = labels, xi = xi, type = type)
+    hypergraph_transduction(hg, labels = labels, xi = xi, type = type,
+                            normalization = normalization)
   }
   out <- fit$predictions
   rownames(out) <- NULL

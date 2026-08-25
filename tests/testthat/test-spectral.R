@@ -224,3 +224,59 @@ test_that("argument contracts are enforced", {
                                        xi = 1.5),
                "xi")
 })
+
+# ---- class-mass normalization ------------------------------------------
+
+test_that("class_mass decision rule matches a hand-computed fixture", {
+  # class A has 10x the spread mass; raw argmax picks A everywhere, the
+  # normalized rule recovers row 2 for B: decision = F / colSums(F)
+  f <- matrix(c(0.60, 0.50, 0.40,
+                0.05, 0.09, 0.02), nrow = 3,
+              dimnames = list(c("n1", "n2", "n3"), c("A", "B")))
+  lab <- c("A", NA, NA)
+  raw <- .thg_score_predictions(f, lab, "none")
+  cmn <- .thg_score_predictions(f, lab, "class_mass")
+  expect_identical(raw$predicted, c("A", "A", "A"))
+  # hand: colSums = (1.5, 0.16); F/mass = A: .4 .3333 .2667 / B: .3125 .5625 .125
+  expect_identical(cmn$predicted, c("A", "B", "A"))
+  expect_equal(cmn$score, c(0.4, 0.5625, 4 / 15), tolerance = 1e-12)
+  expect_equal(cmn$margin, c(0.4 - 0.3125, 0.5625 - 1 / 3, 4 / 15 - 0.125),
+               tolerance = 1e-12)
+})
+
+test_that("class_mass predictions are invariant to per-class score scaling", {
+  set.seed(7)
+  f <- matrix(runif(20, 0.1, 1), nrow = 10,
+              dimnames = list(paste0("n", seq_len(10)), c("A", "B")))
+  scaled <- f
+  scaled[, "A"] <- scaled[, "A"] * 7
+  lab <- rep(NA_character_, 10)
+  expect_identical(.thg_score_predictions(f, lab, "class_mass")$predicted,
+                   .thg_score_predictions(scaled, lab, "class_mass")$predicted)
+})
+
+test_that("transduction engines accept normalization end to end", {
+  hg <- .hl_planted()
+  raw <- hypergraph_transduction(hg, labels = c(a = "x", d = "y"))
+  cmn <- hypergraph_transduction(hg, labels = c(a = "x", d = "y"),
+                                 normalization = "class_mass")
+  # class_mass recovers the planted partition {a,b,c} / {d,e,f}; the raw
+  # rule does not (y's larger spread mass pulls b and c across the bridge)
+  expect_identical(cmn$predictions$predicted,
+                   c("x", "x", "x", "y", "y", "y"))
+  expect_identical(raw$predictions$predicted,
+                   c("x", "y", "y", "y", "y", "y"))
+  expect_identical(cmn$normalization, "class_mass")
+  expect_identical(raw$normalization, "none")
+  # scores stay the raw spread scores under either rule
+  expect_identical(cmn$scores, raw$scores)
+  expect_error(hypergraph_transduction(hg, labels = c(a = "x", d = "y"),
+                                       normalization = "bogus"))
+})
+
+test_that("zero-mass classes are refused with a classed condition", {
+  f <- matrix(c(0.5, 0.4, 0, 0), nrow = 2,
+              dimnames = list(c("n1", "n2"), c("A", "B")))
+  expect_error(.thg_score_predictions(f, c("A", NA), "class_mass"),
+               class = "thg_bad_input")
+})

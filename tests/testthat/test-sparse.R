@@ -68,6 +68,18 @@ test_that("sparse transduction (CG) matches the dense closed form", {
   }
 })
 
+test_that("sparse class_mass transduction matches the dense engine", {
+  hg <- both(weight = "tfidf")
+  labels <- c(cooking_1 = "cooking", space_1 = "space")
+  sparse_fit <- hg_classify(hg$sparse, labels = labels,
+                            normalization = "class_mass")
+  dense_fit <- hg_classify(hg$dense, labels = labels,
+                           normalization = "class_mass")
+  expect_identical(sparse_fit$predicted, dense_fit$predicted)
+  expect_equal(sparse_fit$score, dense_fit$score, tolerance = 1e-8)
+  expect_equal(sparse_fit$margin, dense_fit$margin, tolerance = 1e-8)
+})
+
 test_that("sparse clustering recovers the same planted partition", {
   events <- data.frame(
     person = c("a", "b", "c", "a", "b", "c", "d", "e", "f",

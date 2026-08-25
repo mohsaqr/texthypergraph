@@ -125,6 +125,21 @@ benchmarks on 7k-18k (Ohsumed, 20NG). v0.4 removes the ceiling:
 
 ## v0.5 — Benchmarks: the papers' own yardstick
 
+**Status 2026-08-25: SHIPPED.** Harness in `benchmarks/` (TextGCN
+corpora/splits — the exact files HyperGAT preprocesses; split sizes match
+Ding Table 1 on all five datasets, vocab exactly on R8/R52). Results
+(`benchmarks/RESULTS.md`, pkgdown article `vignettes/articles/`):
+20NG 0.8477 and MR 0.7684 beat the tf-idf centroid (0.7796 / 0.6851) and
+fastText (published 0.7938); MR edges published TextGCN-transductive
+(0.7674); skewed corpora (R8/R52/Ohsumed) go to the centroid — honest
+both ways. Found + fixed a real method defect: raw Zhou argmax collapses
+onto the majority class under imbalanced seeds (R8 0.4947 = the
+majority-class rate) → new `normalization = "class_mass"` argument
+(Zhu et al. 2003 CMN) on `hg_classify()`/`hypergraph_transduction()`,
+fixture + invariance + parity + mutation tested. Low-label study
+(stratified 1-20%, 5 draws): transduction leads the centroid at every
+fraction on MR only. Version 0.5.0.
+
 - R8 / R52 / MR / Ohsumed / 20NG harness (HyperGAT's Table 2 datasets);
   train/test splits as published.
 - Zhou/EDVW transduction + tf-idf baselines vs the published accuracy

@@ -9,7 +9,8 @@ hypergraph_transduction(
   labels,
   xi = 0.99,
   type = c("zhou", "random_walk"),
-  edge_weights = NULL
+  edge_weights = NULL,
+  normalization = c("none", "class_mass")
 )
 }
 \arguments{
@@ -25,6 +26,13 @@ larger values weight the hypergraph structure more relative to the
 initial labels.}
 
 \item{type, edge_weights}{Passed to \code{\link[=hypergraph_laplacian]{hypergraph_laplacian()}}.}
+
+\item{normalization}{Decision rule applied to the score matrix before
+the argmax. \code{"none"} (default) is the raw Zhou (2006) rule.
+\code{"class_mass"} divides each class column by its total spread mass
+(class-mass normalization, Zhu et al. 2003) before the argmax; use it
+when the labeled seeds are class-imbalanced, where the raw rule can
+collapse every prediction onto the majority class.}
 }
 \value{
 An object of class \code{net_hypergraph_transduction}: a list with
@@ -62,4 +70,7 @@ as.data.frame(tr)
 \references{
 Zhou, D., Huang, J., & Scholkopf, B. (2006). Learning with hypergraphs:
 Clustering, classification, and embedding. \emph{NeurIPS 19}.
+
+Zhu, X., Ghahramani, Z., & Lafferty, J. (2003). Semi-supervised learning
+using Gaussian fields and harmonic functions. \emph{ICML 20}.
 }
