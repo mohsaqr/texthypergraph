@@ -124,7 +124,7 @@ hg_centrality <- function(hg, type = c("clique", "Z", "H"),
 
 #' Spectral clustering of a hypergraph, as a tidy table
 #'
-#' Delegates to [Nestimate::hypergraph_cluster()] (Zhou et al. 2006 normalized
+#' Calls the in-package [hypergraph_cluster()] engine (Zhou et al. 2006 normalized
 #' Laplacian, or the Hayashi et al. 2020 random-walk Laplacian with
 #' edge-dependent vertex weights -- the natural choice for tf-idf-weighted
 #' text hypergraphs).
@@ -133,7 +133,7 @@ hg_centrality <- function(hg, type = c("clique", "Z", "H"),
 #' @param k Number of clusters (explicit by design; there is no correct
 #'   default).
 #' @param type `"zhou"` or `"random_walk"`, as in
-#'   [Nestimate::hypergraph_cluster()].
+#'   [hypergraph_cluster()].
 #' @param seed Random seed passed to the engine's k-means step; set it for a
 #'   reproducible partition.
 #' @param nstart Number of k-means starts (default `25L`).
@@ -152,7 +152,7 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
                        nstart = 25L) {
   .thg_check_hg(hg)
   type <- match.arg(type)
-  fit <- Nestimate::hypergraph_cluster(hg, k = k, type = type, seed = seed,
+  fit <- hypergraph_cluster(hg, k = k, type = type, seed = seed,
                                        nstart = nstart)
   out <- fit$clusters
   rownames(out) <- NULL
@@ -161,14 +161,14 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
 
 #' Transductive label spreading on a hypergraph, as a tidy table
 #'
-#' Delegates to [Nestimate::hypergraph_transduction()] (Zhou et al. 2006):
+#' Calls the in-package [hypergraph_transduction()] engine (Zhou et al. 2006):
 #' labels known for a few nodes spread over the hypergraph structure to
 #' classify every node.
 #'
 #' @param hg A [text_hypergraph()] (or any Nestimate `net_hypergraph`).
 #' @param labels Named character vector: names are node identifiers (documents
 #'   under `nodes = "doc"`), values are their known class labels.
-#' @param xi,type Passed to [Nestimate::hypergraph_transduction()].
+#' @param xi,type Passed to [hypergraph_transduction()].
 #' @return A base `data.frame`, one row per node, with columns `node`,
 #'   `label` (the given label or `NA`), `predicted`, `score`, and `margin`.
 #' @examples
@@ -184,7 +184,7 @@ hg_classify <- function(hg, labels, xi = 0.99,
                         type = c("zhou", "random_walk")) {
   .thg_check_hg(hg)
   type <- match.arg(type)
-  fit <- Nestimate::hypergraph_transduction(hg, labels = labels, xi = xi,
+  fit <- hypergraph_transduction(hg, labels = labels, xi = xi,
                                             type = type)
   out <- fit$predictions
   rownames(out) <- NULL

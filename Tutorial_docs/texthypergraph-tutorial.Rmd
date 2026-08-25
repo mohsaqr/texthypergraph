@@ -18,9 +18,10 @@ once, a token window binds *all* the words inside it, and a document sits
 near *all* its semantic neighbors. A hypergraph — edges that contain any
 number of vertices — represents each of those facts directly instead of
 breaking them into pairs. `texthypergraph` builds three such hypergraphs
-from a corpus and analyzes them with tidy verbs; the spectral and
-structural engines are `Nestimate`'s implementations of Zhou, Huang &
-Schölkopf (2006) and Hayashi, Aksoy, Park & Park (2020).
+from a corpus and analyzes them with tidy verbs, implementing the spectral
+methods of Zhou, Huang & Schölkopf (2006) and Hayashi, Aksoy, Park & Park
+(2020) in-package (HyperNetX-parity verified) over `Nestimate`'s incidence
+and measures layer.
 
 The running corpus is the bundled `covid_abstracts`: 165 COVID-19
 education-research abstracts, up to 40 per year, 2020–2024.

@@ -54,7 +54,7 @@ test_that("hg_centrality matches the engine value for value", {
 
 test_that("hg_cluster matches the seeded engine partition and is reproducible", {
   hg <- text_hypergraph(verb_corpus, stop_words = verb_stop)
-  direct <- Nestimate::hypergraph_cluster(hg, k = 2, type = "random_walk",
+  direct <- hypergraph_cluster(hg, k = 2, type = "random_walk",
                                           seed = 7)
   expected <- direct$clusters
   rownames(expected) <- NULL
@@ -69,7 +69,7 @@ test_that("hg_cluster matches the seeded engine partition and is reproducible", 
 test_that("hg_classify matches the engine and preserves given labels", {
   hg <- text_hypergraph(verb_corpus, stop_words = verb_stop)
   labels <- c(cooking_1 = "cooking", space_1 = "space")
-  direct <- Nestimate::hypergraph_transduction(hg, labels = labels)
+  direct <- hypergraph_transduction(hg, labels = labels)
   expected <- direct$predictions
   rownames(expected) <- NULL
 

@@ -41,10 +41,10 @@ test_that("pagerank matches a direct linear solve of the published formula", {
   expect_equal(out$pagerank, pi_ref, tolerance = 1e-10)
 })
 
-test_that("damping = 1 equals the Nestimate engine's stationary distribution", {
+test_that("damping = 1 equals the spectral engine's stationary distribution", {
   hg <- text_hypergraph(pr_corpus, stop_words = pr_stop, weight = "tfidf")
   out <- hg_pagerank(hg, damping = 1, tol = 1e-15, max_iter = 10000L)
-  engine <- Nestimate::hypergraph_cluster(hg, k = 2, type = "random_walk",
+  engine <- hypergraph_cluster(hg, k = 2, type = "random_walk",
                                           seed = 1)
   expect_equal(
     out$pagerank,

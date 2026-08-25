@@ -3,10 +3,12 @@
 Hypergraph text analysis in R: a corpus goes in, a weighted document–word
 hypergraph comes out, and tidy verbs analyze it — spectral clustering,
 transductive classification, structural measures, and tensor eigenvector
-centralities. The spectral and structural engines are
-[Nestimate](https://github.com/mohsaqr/Nestimate)'s implementations of Zhou,
-Huang & Schölkopf (2006) and Hayashi, Aksoy, Park & Park (2020); this package
-owns the text-facing layer. No Python, no NLP dependencies.
+centralities. The spectral engines — the Zhou,
+Huang & Schölkopf (2006) and Hayashi, Aksoy, Park & Park (2020) Laplacians,
+clustering, and transduction — live in this package (HyperNetX-parity
+verified); structural measures, tensor centralities, and the incidence
+construction delegate to [Nestimate](https://github.com/mohsaqr/Nestimate).
+No Python, no NLP dependencies.
 
 A document–word corpus is a bipartite incidence structure, which is a
 hypergraph in either orientation:
@@ -70,8 +72,8 @@ vignette does with `c(stop_words_en(), "study", ...)`.)
 | Verb | Does | Engine |
 |---|---|---|
 | `text_hypergraph()` | corpus → weighted hypergraph (counts or smoothed tf-idf; stop words; `min_count`) | `Nestimate::bipartite_groups()` |
-| `hg_cluster()` | spectral document/word clustering (`"zhou"` or `"random_walk"` EDVW) | `Nestimate::hypergraph_cluster()` |
-| `hg_classify()` | transductive label spreading from a few labeled nodes | `Nestimate::hypergraph_transduction()` |
+| `hg_cluster()` | spectral document/word clustering (`"zhou"` or `"random_walk"` EDVW) | in-package `hypergraph_cluster()` |
+| `hg_classify()` | transductive label spreading from a few labeled nodes | in-package `hypergraph_transduction()` |
 | `hg_centrality()` | clique-expansion + tensor Z/H eigenvector centralities, with `sort_by`/`n` | `Nestimate::hypergraph_centrality()` |
 | `hg_measures()` | tidy structural tables: nodes, edges, overlaps, summary | `Nestimate::hypergraph_measures()` |
 

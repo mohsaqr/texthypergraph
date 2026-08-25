@@ -13,7 +13,7 @@ hg_cluster(hg, k, type = c("zhou", "random_walk"), seed = NULL, nstart = 25L)
 default).}
 
 \item{type}{\code{"zhou"} or \code{"random_walk"}, as in
-\code{\link[Nestimate:hypergraph_cluster]{Nestimate::hypergraph_cluster()}}.}
+\code{\link[=hypergraph_cluster]{hypergraph_cluster()}}.}
 
 \item{seed}{Random seed passed to the engine's k-means step; set it for a
 reproducible partition.}
@@ -25,7 +25,7 @@ A base \code{data.frame}, one row per node, with columns \code{node} and
 \code{cluster}.
 }
 \description{
-Delegates to \code{\link[Nestimate:hypergraph_cluster]{Nestimate::hypergraph_cluster()}} (Zhou et al. 2006 normalized
+Calls the in-package \code{\link[=hypergraph_cluster]{hypergraph_cluster()}} engine (Zhou et al. 2006 normalized
 Laplacian, or the Hayashi et al. 2020 random-walk Laplacian with
 edge-dependent vertex weights -- the natural choice for tf-idf-weighted
 text hypergraphs).

@@ -15,14 +15,17 @@ repo to its role (equivalence oracle vs guiding reference).
 
 - **This package owns**: text → hypergraph constructions
   (`text_hypergraph()`), text-facing tidy verbs (`hg_*`), corpora, vignettes.
-- **Nestimate** (Imports, r-universe) is a FROZEN dependency (2026-08-25:
-  Nestimate is not being expanded). Its shipped engines are delegated to
-  as-is: `bipartite_groups()`, `hypergraph_measures()`,
-  `hypergraph_centrality()`, `hypergraph_cluster()`,
-  `hypergraph_transduction()`, `hypergraph_laplacian()`, `wtna()`. New
-  numerical methods (v0.3+: EDVW random-walk centrality, dual, null models)
-  are implemented HERE with their own oracle/invariant gates — never added
-  to Nestimate, and never duplicating an engine it already ships.
+- **Nestimate** (Imports, r-universe) is a FROZEN dependency (2026-08-25).
+  Only its PUBLISHED engines are delegated to: `bipartite_groups()`,
+  `hypergraph_measures()`, `hypergraph_centrality()`, `wtna()`,
+  `clique_expansion()`. The spectral trio (`hypergraph_laplacian()`,
+  `hypergraph_cluster()`, `hypergraph_transduction()`) was MIGRATED into
+  this package (`R/spectral.R` + `tests/testthat/test-spectral.R`) on
+  2026-08-25: it existed only uncommitted in Nestimate's working tree,
+  never in its published builds, and the user chose migration over
+  publishing it there. Condition class renamed to
+  `thg_hypergraph_disconnected`. All new numerical methods are implemented
+  HERE with their own oracle/invariant gates.
 - **sbert** (Suggests, planned v0.2) provides native embeddings for the kNN
   construction; every verb must also accept precomputed embeddings.
 - Oracles (HyperNetX, XGI, HyperG, gudhi) are used reticulate/local-only in

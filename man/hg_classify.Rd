@@ -12,14 +12,14 @@ hg_classify(hg, labels, xi = 0.99, type = c("zhou", "random_walk"))
 \item{labels}{Named character vector: names are node identifiers (documents
 under \code{nodes = "doc"}), values are their known class labels.}
 
-\item{xi, type}{Passed to \code{\link[Nestimate:hypergraph_transduction]{Nestimate::hypergraph_transduction()}}.}
+\item{xi, type}{Passed to \code{\link[=hypergraph_transduction]{hypergraph_transduction()}}.}
 }
 \value{
 A base \code{data.frame}, one row per node, with columns \code{node},
 \code{label} (the given label or \code{NA}), \code{predicted}, \code{score}, and \code{margin}.
 }
 \description{
-Delegates to \code{\link[Nestimate:hypergraph_transduction]{Nestimate::hypergraph_transduction()}} (Zhou et al. 2006):
+Calls the in-package \code{\link[=hypergraph_transduction]{hypergraph_transduction()}} engine (Zhou et al. 2006):
 labels known for a few nodes spread over the hypergraph structure to
 classify every node.
 }

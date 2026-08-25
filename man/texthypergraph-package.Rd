@@ -6,7 +6,7 @@
 \alias{texthypergraph-package}
 \title{texthypergraph: Hypergraph Text Analysis}
 \description{
-Builds weighted hypergraphs from text corpora and analyzes them with tidy verbs. Documents and words form a bipartite incidence structure that becomes a hypergraph in either orientation: documents as vertices connected by shared words, or words as vertices connected by shared documents. Term weighting supports raw counts and smoothed tf-idf following Manning, Raghavan and Schutze (2008, ISBN:9780521865715). Spectral analysis (clustering, transductive classification), structural measures, and tensor eigenvector centralities are delegated to the 'Nestimate' engines implementing Zhou, Huang and Schoelkopf (2006) and Hayashi, Aksoy, Park and Park (2020) \doi{10.1145/3340531.3412034}.
+Builds weighted hypergraphs from text corpora and analyzes them with tidy verbs. Documents and words form a bipartite incidence structure that becomes a hypergraph in either orientation: documents as vertices connected by shared words, or words as vertices connected by shared documents. Term weighting supports raw counts and smoothed tf-idf following Manning, Raghavan and Schutze (2008, ISBN:9780521865715). Spectral analysis implements the normalized hypergraph Laplacian of Zhou, Huang and Schoelkopf (2006) and the random-walk Laplacian with edge-dependent vertex weights of Hayashi, Aksoy, Park and Park (2020) \doi{10.1145/3340531.3412034}, with spectral clustering and transductive classification; structural measures and tensor eigenvector centralities are delegated to the 'Nestimate' engines.
 }
 \seealso{
 Useful links:

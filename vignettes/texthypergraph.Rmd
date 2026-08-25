@@ -23,7 +23,9 @@ shared vocabulary, and can a handful of labeled abstracts classify the rest?
 
 The methods are Zhou, Huang & Schölkopf's (2006) hypergraph Laplacian and
 Hayashi et al.'s (2020) random-walk Laplacian with edge-dependent vertex
-weights, computed by the `Nestimate` engines.
+weights — the spectral engines live in this package (HyperNetX-parity
+verified); incidence construction and structural measures delegate to
+`Nestimate`.
 
 ## From corpus to hypergraph
 
