@@ -127,6 +127,59 @@ built-in falsification.
 Gate: same discipline — hand-computed fixtures, invariants, oracle
 scripts, real-corpus vignette.
 
+## v0.4 — Scale: sparse core (MANDATE 2026-08-25)
+
+**Status 2026-08-25: sparse core SHIPPED** (bag construction, PageRank,
+transduction via CG, RSpectra spectral clustering, measures, dual;
+window/ knn/tensor-centrality/null-test sparse paths still dense-only,
+guarded by classed errors). Scale demo: 20,000 docs x 17,576 words —
+build 12.5s, classify 0.6s (accuracy 1.000 on planted blocks), cluster
+0.3s (perfect partition), 14.4 MB sparse vs 2.8 GB dense equivalent. 291
+tests; check 0/0/0. Version 0.4.0. The 20NG-class benchmarks (v0.5) are
+now feasible.
+
+User verdict on v0.1-0.3: correct foundation, toy scale. The dense
+incidence caps the package at hundreds of documents while the literature
+base benchmarks on 7k-18k (Ohsumed, 20NG). v0.4 removes the ceiling:
+
+- Sparse incidence (`Matrix::dgCMatrix`) as a first-class representation
+  (`text_hypergraph(sparse = TRUE)`), same construction semantics.
+- Sparse engines: EDVW transition + PageRank (sparse mat-vec),
+  transduction via conjugate gradient on the operator (never
+  materializing `solve`), spectral clustering via `RSpectra` partial
+  eigenpairs on the similarity operator, structural measures on sparse
+  cross-products.
+- **Oracle: the shipped dense engines themselves** (Nestimate/HyperNetX-
+  parity-verified) — sparse and dense must agree to 1e-8 on every small
+  corpus; scale gate: 20k x 50k corpora construct + classify in minutes.
+
+## v0.5 — Benchmarks: the papers’ own yardstick
+
+- R8 / R52 / MR / Ohsumed / 20NG harness (HyperGAT’s Table 2 datasets);
+  train/test splits as published.
+- Zhou/EDVW transduction + tf-idf baselines vs the published accuracy
+  tables; accuracy/F1 with bootstrap CIs; honest reporting either way.
+- Results as a pkgdown article; harness reused by v0.6.
+
+## v0.6 — Neural tier: hypergraph GNNs natively in R ({torch}, Suggests)
+
+The no-neural rule is LIFTED (user decision 2026-08-25). First
+hypergraph GNNs in R, no Python:
+
+- HGNN (Feng 2019): spectral convolution on the Zhou Laplacian — the
+  simplest layer, first.
+- HyperGAT (Ding 2020): dual node-level/edge-level attention.
+- Equivalence discipline for neural code: forward-pass parity against
+  the official PyTorch implementations with fixed weights (reticulate,
+  local_testing_and_equivalence/); training curves + benchmark accuracy
+  vs the papers’ tables via the v0.5 harness.
+
+## v0.7 — Analytics depth
+
+- `hg_embed()` (spectral embedding verb), eigengap/conductance cluster
+  quality, per-cluster keyword extraction, ARI stability across seeds,
+  larger bundled corpora.
+
 ## v1.0 — CRAN + the paper
 
 - CRAN submission (the first-in-R claims re-verified against CRAN at

@@ -21,7 +21,8 @@ text_hypergraph(
   window_mode = c("sliding", "tumbling"),
   k = 10L,
   embeddings = NULL,
-  model = NULL
+  model = NULL,
+  sparse = FALSE
 )
 ```
 
@@ -98,6 +99,20 @@ text_hypergraph(
 
   Passed to `sbert::encode()` when embeddings are computed (`NULL` =
   sbert's default model).
+
+- sparse:
+
+  Store the incidence as a `Matrix::dgCMatrix` (bag construction only,
+  default `FALSE`). Sparse hypergraphs scale to tens of thousands of
+  documents;
+  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
+  [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md),
+  [`hg_pagerank()`](https://mohsaqr.github.io/texthypergraph/reference/hg_pagerank.md),
+  and
+  [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md)
+  use sparse operator paths that agree with the dense engines (tested),
+  while tensor centralities and the null test currently require the
+  dense representation.
 
 ## Value
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,6 +78,33 @@
 <li><label><input type="checkbox" checked>DONE 2026-08-25: <strong><code><a href="reference/dual_hypergraph.html">dual_hypergraph()</a></code></strong> — transpose identity, involution, and dual == opposite-orientation-construction tests shipped; HyperG::dual_hypergraph support parity PASS (local).</label></li>
 <li><label><input type="checkbox" checked>DONE 2026-08-25: <strong><code><a href="reference/hg_null_test.html">hg_null_test()</a></code></strong> — degree-preserving checkerboard null (Gotelli 2000), permutation p (Phipson &amp; Smyth 2010), null quantiles + z; margin-conservation and blocky-structure detection tests shipped; avg_edge_size invariance as built-in falsification.</label></li>
 <li>Gate: same discipline — hand-computed fixtures, invariants, oracle scripts, real-corpus vignette.</li>
+</ul></div>
+<div class="section level2">
+<h2 id="v04--scale-sparse-core-mandate-2026-08-25">v0.4 — Scale: sparse core (MANDATE 2026-08-25)<a class="anchor" aria-label="anchor" href="#v04--scale-sparse-core-mandate-2026-08-25"></a></h2>
+<p><strong>Status 2026-08-25: sparse core SHIPPED</strong> (bag construction, PageRank, transduction via CG, RSpectra spectral clustering, measures, dual; window/ knn/tensor-centrality/null-test sparse paths still dense-only, guarded by classed errors). Scale demo: 20,000 docs x 17,576 words — build 12.5s, classify 0.6s (accuracy 1.000 on planted blocks), cluster 0.3s (perfect partition), 14.4 MB sparse vs 2.8 GB dense equivalent. 291 tests; check 0/0/0. Version 0.4.0. The 20NG-class benchmarks (v0.5) are now feasible.</p>
+<p>User verdict on v0.1-0.3: correct foundation, toy scale. The dense incidence caps the package at hundreds of documents while the literature base benchmarks on 7k-18k (Ohsumed, 20NG). v0.4 removes the ceiling:</p>
+<ul><li>Sparse incidence (<code>Matrix::dgCMatrix</code>) as a first-class representation (<code>text_hypergraph(sparse = TRUE)</code>), same construction semantics.</li>
+<li>Sparse engines: EDVW transition + PageRank (sparse mat-vec), transduction via conjugate gradient on the operator (never materializing <code>solve</code>), spectral clustering via <code>RSpectra</code> partial eigenpairs on the similarity operator, structural measures on sparse cross-products.</li>
+<li>
+<strong>Oracle: the shipped dense engines themselves</strong> (Nestimate/HyperNetX- parity-verified) — sparse and dense must agree to 1e-8 on every small corpus; scale gate: 20k x 50k corpora construct + classify in minutes.</li>
+</ul></div>
+<div class="section level2">
+<h2 id="v05--benchmarks-the-papers-own-yardstick">v0.5 — Benchmarks: the papers’ own yardstick<a class="anchor" aria-label="anchor" href="#v05--benchmarks-the-papers-own-yardstick"></a></h2>
+<ul><li>R8 / R52 / MR / Ohsumed / 20NG harness (HyperGAT’s Table 2 datasets); train/test splits as published.</li>
+<li>Zhou/EDVW transduction + tf-idf baselines vs the published accuracy tables; accuracy/F1 with bootstrap CIs; honest reporting either way.</li>
+<li>Results as a pkgdown article; harness reused by v0.6.</li>
+</ul></div>
+<div class="section level2">
+<h2 id="v06--neural-tier-hypergraph-gnns-natively-in-r-torch-suggests">v0.6 — Neural tier: hypergraph GNNs natively in R ({torch}, Suggests)<a class="anchor" aria-label="anchor" href="#v06--neural-tier-hypergraph-gnns-natively-in-r-torch-suggests"></a></h2>
+<p>The no-neural rule is LIFTED (user decision 2026-08-25). First hypergraph GNNs in R, no Python:</p>
+<ul><li>HGNN (Feng 2019): spectral convolution on the Zhou Laplacian — the simplest layer, first.</li>
+<li>HyperGAT (Ding 2020): dual node-level/edge-level attention.</li>
+<li>Equivalence discipline for neural code: forward-pass parity against the official PyTorch implementations with fixed weights (reticulate, local_testing_and_equivalence/); training curves + benchmark accuracy vs the papers’ tables via the v0.5 harness.</li>
+</ul></div>
+<div class="section level2">
+<h2 id="v07--analytics-depth">v0.7 — Analytics depth<a class="anchor" aria-label="anchor" href="#v07--analytics-depth"></a></h2>
+<ul><li>
+<code>hg_embed()</code> (spectral embedding verb), eigengap/conductance cluster quality, per-cluster keyword extraction, ARI stability across seeds, larger bundled corpora.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="v10--cran--the-paper">v1.0 — CRAN + the paper<a class="anchor" aria-label="anchor" href="#v10--cran--the-paper"></a></h2>

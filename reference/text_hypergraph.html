@@ -11,7 +11,7 @@ constructions:"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,8 @@ constructions:</p>
 <span>  window_mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sliding"</span>, <span class="st">"tumbling"</span><span class="op">)</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  embeddings <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  model <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sparse <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -144,6 +145,15 @@ the text with <code>sbert</code>.</p></dd>
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>Passed to <code>sbert::encode()</code> when embeddings are computed
 (<code>NULL</code> = sbert's default model).</p></dd>
+
+
+<dt id="arg-sparse">sparse<a class="anchor" aria-label="anchor" href="#arg-sparse"></a></dt>
+<dd><p>Store the incidence as a <code>Matrix::dgCMatrix</code> (bag
+construction only, default <code>FALSE</code>). Sparse hypergraphs scale to tens
+of thousands of documents; <code><a href="hg_cluster.html">hg_cluster()</a></code>, <code><a href="hg_classify.html">hg_classify()</a></code>,
+<code><a href="hg_pagerank.html">hg_pagerank()</a></code>, and <code><a href="hg_measures.html">hg_measures()</a></code> use sparse operator paths that
+agree with the dense engines (tested), while tensor centralities and
+the null test currently require the dense representation.</p></dd>
 
 </dl></div>
     <div class="section level2">
