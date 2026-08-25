@@ -82,14 +82,10 @@ on the real corpus with w and k sensitivity checks. 136 tests; check
 
 ## v0.3 — Theory completions (implemented HERE; Nestimate frozen)
 
-- **Hypergraph random-walk centrality / PageRank with edge-dependent vertex
-  weights** (Chitra & Raphael 2019) — new code in this package
-  (`hg_pagerank()` or an `hg_centrality()` type). Oracles: HyperNetX
-  `prob_trans()`/`get_pi()` (author-adjacent EDVW walk, reticulate,
-  local_testing_and_equivalence/ only) + the falsification invariant from
-  their theorem: edge-INdependent weights must collapse to the plain-graph
-  random walk (testable against igraph/base PageRank on the clique
-  expansion).
+- [x] DONE 2026-08-25: **`hg_pagerank()`** (Chitra & Raphael 2019 EDVW walk
+  + damping/personalization). Four verification layers: direct linear-solve
+  reference; collapse-theorem closed form (1e-12); Nestimate `$pi` parity
+  (1e-12); HyperNetX `get_pi(prob_trans(weights=TRUE))` parity (1.4e-16).
 - **`dual_hypergraph()`** — swap the vertex/hyperedge roles of an existing
   hypergraph without re-tokenizing (the `nodes = "doc"/"word"` flip as a
   verb on fitted objects). Oracle: `HyperG::dual_hypergraph` (unweighted
