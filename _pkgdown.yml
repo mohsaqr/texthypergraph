@@ -1,0 +1,30 @@
+url: https://mohsaqr.github.io/texthypergraph
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Constructions
+  desc: Corpus and embeddings to weighted hypergraph.
+  contents:
+  - text_hypergraph
+  - knn_hypergraph
+  - dual_hypergraph
+  - stop_words_en
+- title: Analysis verbs
+  desc: Tidy tables from the delegated Nestimate engines and the in-package methods.
+  contents:
+  - hg_measures
+  - hg_centrality
+  - hg_pagerank
+  - hg_cluster
+  - hg_classify
+  - hg_null_test
+- title: Methods and accessors
+  contents:
+  - print.text_hypergraph
+  - as.data.frame.text_hypergraph
+- title: Data
+  contents:
+  - covid_abstracts
+  - covid_embeddings

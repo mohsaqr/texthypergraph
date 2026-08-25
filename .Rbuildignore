@@ -14,3 +14,6 @@
 ^\.Rproj\.user$
 ^local_testing_and_equivalence$
 ^Tutorial_docs$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
