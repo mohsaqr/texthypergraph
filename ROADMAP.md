@@ -82,18 +82,20 @@ on the real corpus with w and k sensitivity checks. 136 tests; check
 
 ## v0.3 — Theory completions (implemented HERE; Nestimate frozen)
 
+**Status 2026-08-25: v0.3 COMPLETE** (hg_pagerank + dual_hypergraph +
+hg_null_test; 180 tests; check 0/0/1 environmental NOTE; version 0.3.0).
+
 - [x] DONE 2026-08-25: **`hg_pagerank()`** (Chitra & Raphael 2019 EDVW walk
   + damping/personalization). Four verification layers: direct linear-solve
   reference; collapse-theorem closed form (1e-12); Nestimate `$pi` parity
   (1e-12); HyperNetX `get_pi(prob_trans(weights=TRUE))` parity (1.4e-16).
-- **`dual_hypergraph()`** — swap the vertex/hyperedge roles of an existing
-  hypergraph without re-tokenizing (the `nodes = "doc"/"word"` flip as a
-  verb on fitted objects). Oracle: `HyperG::dual_hypergraph` (unweighted
-  support), local-only.
-- **Null-model calibration** — degree-preserving randomization of the
-  incidence for significance-testing `hg_measures()` quantities on text
-  hypergraphs (replaces the deferred Saqrlab sampler route; Saqrlab and
-  wasserstein items are PARKED, not planned).
+- [x] DONE 2026-08-25: **`dual_hypergraph()`** — transpose identity,
+  involution, and dual == opposite-orientation-construction tests shipped;
+  HyperG::dual_hypergraph support parity PASS (local).
+- [x] DONE 2026-08-25: **`hg_null_test()`** — degree-preserving
+  checkerboard null (Gotelli 2000), permutation p (Phipson & Smyth 2010),
+  null quantiles + z; margin-conservation and blocky-structure detection
+  tests shipped; avg_edge_size invariance as built-in falsification.
 - Gate: same discipline — hand-computed fixtures, invariants, oracle
   scripts, real-corpus vignette.
 

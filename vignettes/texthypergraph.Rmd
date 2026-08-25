@@ -160,6 +160,59 @@ publication year is weakly encoded in word choice. Label spreading here is
 trustworthy for what it asserts and honest about how little the structure
 supports.
 
+## Ranking, dualizing, and testing the structure
+
+Three verbs complete the analysis layer. `hg_pagerank()` ranks vertices by
+the stationary importance of the Chitra & Raphael (2019) random walk with
+edge-dependent vertex weights -- the walk that actually uses the tf-idf
+weights (verified against the HyperNetX reference implementation at
+machine precision):
+
+```{r pagerank}
+hg_pagerank(hg, sort_by = "pagerank", n = 3)
+```
+
+The top-ranked abstracts are the corpus's connective tissue -- documents
+whose vocabulary reaches everywhere. A `personalized =` vector turns the
+same verb into "importance from the perspective of these documents".
+`dual_hypergraph()` swaps the vertex and hyperedge roles of a fitted
+object, so the word-level view never requires re-tokenizing:
+
+```{r dual}
+dual_hypergraph(hg)
+```
+
+Finally, `hg_null_test()` asks whether observed structure exceeds what the
+degree sequences alone imply: it rewires the binary membership by
+degree-preserving checkerboard swaps (Gotelli 2000) and compares. On the
+2020 abstracts:
+
+```{r null-test}
+abstracts_2020 <- text_hypergraph(
+  subset(covid_abstracts, year == 2020),
+  column = "abstract",
+  id = "doc",
+  weight = "tfidf",
+  stop_words = stops,
+  min_count = 3L
+)
+hg_null_test(
+  abstracts_2020,
+  statistic = c("pairwise_participation", "avg_jaccard"),
+  n = 99,
+  seed = 1
+)
+```
+
+Read the two rows together: near-universal pairwise participation (0.988)
+is *not* evidence of structure -- the null reproduces it (p = 0.36),
+because vocabulary-rich abstracts connect to everything under any
+degree-preserving rewiring. The mean edge Jaccard *is* significant
+(z = 2.48, p = 0.01): words repeat each other's document combinations more
+than their frequencies require, which is exactly the topical co-occurrence
+the clustering exploits. The decisive practice: never report a structural
+statistic without its null interval.
+
 ## Using an existing quanteda or tidytext pipeline
 
 `text_hypergraph()` needs no NLP dependency, but any long document–word
