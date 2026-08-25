@@ -79,6 +79,31 @@ hyperedges over words, feeding `hypergraph_measures()` and
 `hypergraph_centrality()`. Classification/clustering unlocks once the Zhou
 Laplacian lands. Vignette candidate.
 
+## Python ecosystem (verified 2026-08-25)
+
+Python has everything R lacks — which matters to us mainly as ORACLES for the
+local equivalence suites (reticulate, never declared deps, pyHON/pathpy
+pattern):
+
+- **XGI** — measures, connectivity, and (verified in docs) `h_eigenvector_`,
+  `z_eigenvector_`, `clique_eigenvector_centrality`, Katz: an independent
+  second oracle for Nestimate's SHIPPED `hypergraph_centrality()` trio.
+- **HyperNetX** (PNNL) — verified in source: `laplacians_clustering.py`
+  implements the Hayashi EDVW pipeline exactly (`prob_trans`, `get_pi`,
+  `norm_lap`, `spec_clus`, citing the paper — Aksoy is PNNL). THE oracle for
+  the parked Zhou/Hayashi Laplacian item. Also: hypergraph modularity (Kumar),
+  homology, temporal hypergraphs, generators.
+- **HypergraphX (HGX)** — measures, communities, motifs (Battiston group).
+- **DHG (DeepHypergraph)** — HGNN/HGNN+/HyperGCN/UniGNN on PyTorch;
+  `HypergraphConv` also in PyTorch Geometric; TopoNetX/TopoModelX for
+  topological deep learning. (Neural tier; reference-only for us.)
+- **TDA**: gudhi, ripser.py, giotto-tda — outclass both R TDA packages;
+  candidate oracles for `wasserstein_distance()` too.
+- **Text tiers**: BERTopic, Top2Vec, sentence-transformers, CTM — all native.
+
+Consequence: every parked Nestimate item has a Python reference
+implementation available for equivalence testing; the first-in-R claim stands.
+
 ## What R actually has (verified 2026-08-24 against CRAN)
 
 - **Native CRAN**: `uwot` (UMAP), `dbscan` (HDBSCAN), `BTM` (short-text

@@ -12,8 +12,9 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
       clustering (fits `cluster_data()` family), transductive label spreading
       (THE non-neural text classifier — no R implementation exists), and
       spectral embedding. Oracles: `HyperG::hypergraph_laplacian_matrix` /
-      `cluster_spectral` for the unweighted case; hand-computed cases for
-      weighted.
+      `cluster_spectral` for the unweighted case; **HyperNetX
+      `norm_lap`/`spec_clus` (verified: implements Hayashi EDVW exactly) via
+      reticulate for the weighted case**; hand-computed small cases.
 - [ ] **Windowed sequence hyperedges** for `build_hypergraph()` (HyperGAT
       construction, our weighted/windowed extension — no upstream oracle;
       invariants: window-count conservation, w = 2 reduces to
@@ -33,7 +34,9 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
       theory; shares ALL machinery with the Zhou Laplacian item above (one
       extra weighting argument, e.g. `vertex_weights=` on the incidence).
       No R implementation exists. This is the better-than-LDA unsupervised
-      route that stays fully statistical/interpretable.
+      route that stays fully statistical/interpretable. Oracle: HyperNetX
+      `laplacians_clustering` (author-adjacent implementation, verified
+      2026-08-25).
 - [ ] **kNN embedding hypergraph (tier-3 -> tier-2 bridge)**: each document +
       its k nearest neighbors in a contrastive-embedding space (SimCSE / E5 /
       BGE class) = one hyperedge, weights from cosine similarity; then the
@@ -54,6 +57,12 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
       `bipartite_groups(long, player = "word", group = "doc", weight = "n")`
       → measures / centrality / (once landed) Laplacian classification.
       No new code — documentation of an existing path.
+
+- [ ] **XGI as second oracle for shipped `hypergraph_centrality()`**: XGI has
+      `h_eigenvector_`/`z_eigenvector_`/`clique_eigenvector_centrality`
+      (verified in docs 2026-08-25) — add a reticulate cross-check to
+      Nestimate's `local_testing_and_equivalence/test-equiv-hypergraph.R`
+      alongside the existing igraph/clean-room references.
 
 ## Saqrlab (simulation)
 
@@ -95,3 +104,7 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
 - XLNet official: https://github.com/zihangdai/xlnet
 - HF transformers XLNet docs: https://huggingface.co/docs/transformers/model_doc/xlnet
 - R `text` package (HF wrapper): https://cran.r-project.org/package=text
+- XGI (Python): https://xgi.readthedocs.io
+- HyperNetX (Python, PNNL): https://github.com/pnnl/HyperNetX
+- HypergraphX: https://github.com/HGX-Team/hypergraphx
+- DHG / DeepHypergraph: https://github.com/iMoonLab/DeepHypergraph
