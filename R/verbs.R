@@ -36,6 +36,9 @@
 hg_measures <- function(hg, what = c("nodes", "edges", "overlap", "summary")) {
   .thg_check_hg(hg)
   what <- match.arg(what)
+  if (.thg_is_sparse(hg)) {
+    return(.thg_sparse_measures(hg, what))
+  }
   m <- Nestimate::hypergraph_measures(hg)
   edges <- colnames(hg$incidence)
   switch(what,
@@ -101,6 +104,12 @@ hg_centrality <- function(hg, type = c("clique", "Z", "H"),
                           max_iter = 1000L, tol = 1e-8, normalize = TRUE) {
   .thg_check_hg(hg)
   type <- match.arg(type, several.ok = TRUE)
+  if (.thg_is_sparse(hg)) {
+    stop(errorCondition(
+      "tensor centralities need the dense representation; use hg_pagerank() at scale",
+      class = "thg_sparse_unsupported", call = NULL
+    ))
+  }
   stopifnot(
     "`n` must be a single count >= 1" =
       length(n) == 1L && (is.infinite(n) || (is.finite(n) && n >= 1))
@@ -152,8 +161,13 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
                        nstart = 25L) {
   .thg_check_hg(hg)
   type <- match.arg(type)
-  fit <- hypergraph_cluster(hg, k = k, type = type, seed = seed,
-                                       nstart = nstart)
+  fit <- if (.thg_is_sparse(hg)) {
+    .thg_sparse_cluster(hg, k = k, type = type, edge_weights = NULL,
+                        nstart = nstart, seed = seed)
+  } else {
+    hypergraph_cluster(hg, k = k, type = type, seed = seed,
+                       nstart = nstart)
+  }
   out <- fit$clusters
   rownames(out) <- NULL
   out
@@ -184,8 +198,12 @@ hg_classify <- function(hg, labels, xi = 0.99,
                         type = c("zhou", "random_walk")) {
   .thg_check_hg(hg)
   type <- match.arg(type)
-  fit <- hypergraph_transduction(hg, labels = labels, xi = xi,
-                                            type = type)
+  fit <- if (.thg_is_sparse(hg)) {
+    .thg_sparse_transduction(hg, labels = labels, xi = xi, type = type,
+                             edge_weights = NULL)
+  } else {
+    hypergraph_transduction(hg, labels = labels, xi = xi, type = type)
+  }
   out <- fit$predictions
   rownames(out) <- NULL
   out

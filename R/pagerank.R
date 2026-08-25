@@ -126,9 +126,15 @@ hg_pagerank <- function(hg, damping = 0.85, personalized = NULL,
       length(tol) == 1L && is.finite(tol) && tol > 0
   )
 
-  walk <- .thg_transition(hg, edge_weights = edge_weights)
-  transition <- walk$transition
-  ids <- rownames(transition)
+  if (.thg_is_sparse(hg)) {
+    ops <- .thg_walk_operators(hg, edge_weights = edge_weights)
+    step <- ops$left
+    ids <- rownames(hg$incidence)
+  } else {
+    walk <- .thg_transition(hg, edge_weights = edge_weights)
+    step <- function(v) as.numeric(v %*% walk$transition)
+    ids <- rownames(walk$transition)
+  }
 
   if (is.null(personalized)) {
     teleport <- rep(1 / length(ids), length(ids))
@@ -154,8 +160,7 @@ hg_pagerank <- function(hg, damping = 0.85, personalized = NULL,
   # cannot be vectorized away; bounded by max_iter with convergence surfaced
   while (iter < max_iter) {
     iter <- iter + 1L
-    updated <- damping * as.numeric(rank %*% transition) +
-      (1 - damping) * teleport
+    updated <- damping * step(rank) + (1 - damping) * teleport
     if (sum(abs(updated - rank)) < tol) {
       rank <- updated
       converged <- TRUE

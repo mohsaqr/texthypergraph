@@ -18,7 +18,8 @@ text_hypergraph(
   window_mode = c("sliding", "tumbling"),
   k = 10L,
   embeddings = NULL,
-  model = NULL
+  model = NULL,
+  sparse = FALSE
 )
 }
 \arguments{
@@ -68,6 +69,13 @@ the text with \code{sbert}.}
 
 \item{model}{Passed to \code{sbert::encode()} when embeddings are computed
 (\code{NULL} = sbert's default model).}
+
+\item{sparse}{Store the incidence as a \code{Matrix::dgCMatrix} (bag
+construction only, default \code{FALSE}). Sparse hypergraphs scale to tens
+of thousands of documents; \code{\link[=hg_cluster]{hg_cluster()}}, \code{\link[=hg_classify]{hg_classify()}},
+\code{\link[=hg_pagerank]{hg_pagerank()}}, and \code{\link[=hg_measures]{hg_measures()}} use sparse operator paths that
+agree with the dense engines (tested), while tensor centralities and
+the null test currently require the dense representation.}
 }
 \value{
 An object of class \code{c("text_hypergraph", "net_hypergraph")} -- a

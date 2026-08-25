@@ -101,6 +101,14 @@ hg_null_test; 180 tests; check 0/0/1 environmental NOTE; version 0.3.0).
 
 ## v0.4 — Scale: sparse core (MANDATE 2026-08-25)
 
+**Status 2026-08-25: sparse core SHIPPED** (bag construction, PageRank,
+transduction via CG, RSpectra spectral clustering, measures, dual; window/
+knn/tensor-centrality/null-test sparse paths still dense-only, guarded by
+classed errors). Scale demo: 20,000 docs x 17,576 words — build 12.5s,
+classify 0.6s (accuracy 1.000 on planted blocks), cluster 0.3s (perfect
+partition), 14.4 MB sparse vs 2.8 GB dense equivalent. 291 tests; check
+0/0/0. Version 0.4.0. The 20NG-class benchmarks (v0.5) are now feasible.
+
 User verdict on v0.1-0.3: correct foundation, toy scale. The dense incidence
 caps the package at hundreds of documents while the literature base
 benchmarks on 7k-18k (Ohsumed, 20NG). v0.4 removes the ceiling:

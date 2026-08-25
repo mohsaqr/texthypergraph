@@ -140,9 +140,11 @@ head(hg_measures(hg))
 ```
 
 `hyperdegree` counts how many distinct (kept) words a document
-contributes to; `strength` sums its tf-idf mass. The first abstract sits
-in 71 word-hyperedges with strength 1,322 — a vocabulary-rich document
-that will act as a hub in anything walk-based. On small hypergraphs the
+contributes to; `strength` sums the sizes of those word-hyperedges, so it
+mixes how many words a document uses with how widely shared they are. The
+first abstract sits in 71 word-hyperedges whose sizes sum to 1,322 — a
+document built from broadly shared vocabulary, which will act as a hub in
+anything walk-based. On small hypergraphs the
 `edges` and `overlap` tables are readable directly:
 
 ```{r measures-overlap}

@@ -117,6 +117,12 @@
 #'   the text with `sbert`.
 #' @param model Passed to `sbert::encode()` when embeddings are computed
 #'   (`NULL` = sbert's default model).
+#' @param sparse Store the incidence as a `Matrix::dgCMatrix` (bag
+#'   construction only, default `FALSE`). Sparse hypergraphs scale to tens
+#'   of thousands of documents; [hg_cluster()], [hg_classify()],
+#'   [hg_pagerank()], and [hg_measures()] use sparse operator paths that
+#'   agree with the dense engines (tested), while tensor centralities and
+#'   the null test currently require the dense representation.
 #'
 #' @return An object of class `c("text_hypergraph", "net_hypergraph")` -- a
 #'   [Nestimate::bipartite_groups()] hypergraph accepted by every Nestimate
@@ -176,9 +182,18 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
                             window_mode = c("sliding", "tumbling"),
                             k = 10L,
                             embeddings = NULL,
-                            model = NULL) {
+                            model = NULL,
+                            sparse = FALSE) {
   construction <- match.arg(construction)
   nodes <- match.arg(nodes)
+  stopifnot("`sparse` must be TRUE or FALSE" =
+              isTRUE(sparse) || isFALSE(sparse))
+  if (isTRUE(sparse) && !identical(construction, "bag")) {
+    stop(errorCondition(
+      "`sparse = TRUE` currently supports the bag construction only",
+      class = "thg_bad_input", call = NULL
+    ))
+  }
   weight <- match.arg(weight)
   window_mode <- match.arg(window_mode)
   stopifnot(
@@ -332,12 +347,12 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
       counts$w <- as.numeric(counts$n)
     }
     stopifnot("internal: non-positive weights produced" = all(counts$w > 0))
+    builder <- if (isTRUE(sparse)) .thg_sparse_bipartite else
+      Nestimate::bipartite_groups
     hg <- if (identical(nodes, "doc")) {
-      Nestimate::bipartite_groups(counts, player = "doc", group = "word",
-                                  weight = "w")
+      builder(counts, player = "doc", group = "word", weight = "w")
     } else {
-      Nestimate::bipartite_groups(counts, player = "word", group = "doc",
-                                  weight = "w")
+      builder(counts, player = "word", group = "doc", weight = "w")
     }
     weights <- data.frame(doc = counts$doc, word = counts$word,
                           n = counts$n, weight = counts$w)

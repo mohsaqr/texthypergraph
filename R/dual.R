@@ -25,6 +25,16 @@
 #' @export
 dual_hypergraph <- function(hg) {
   .thg_check_hg(hg)
+  if (.thg_is_sparse(hg)) {
+    triplet <- methods::as(hg$incidence, "TsparseMatrix")
+    long <- data.frame(
+      vertex = colnames(hg$incidence)[triplet@j + 1L],
+      edge = rownames(hg$incidence)[triplet@i + 1L],
+      w = triplet@x
+    )
+    return(.thg_sparse_bipartite(long, player = "vertex", group = "edge",
+                                 weight = "w"))
+  }
   nz <- which(hg$incidence != 0, arr.ind = TRUE)
   long <- data.frame(
     vertex = colnames(hg$incidence)[nz[, "col"]],

@@ -102,6 +102,12 @@ hg_null_test <- function(hg,
                          n = 199L, seed = NULL,
                          alternative = c("two_sided", "greater", "less")) {
   .thg_check_hg(hg)
+  if (.thg_is_sparse(hg)) {
+    stop(errorCondition(
+      "the null test needs the dense representation for now",
+      class = "thg_sparse_unsupported", call = NULL
+    ))
+  }
   statistic <- match.arg(statistic, several.ok = TRUE)
   alternative <- match.arg(alternative)
   stopifnot(
