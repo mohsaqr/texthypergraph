@@ -6,8 +6,10 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
 
 ## Nestimate (statistical R core)
 
-- [ ] **Weighted hypergraph Laplacian + spectral clustering + transductive
-      classification** (Zhou, Huang & Schölkopf 2006 — `papers/2006-NeurIPS-
+- [x] DONE 2026-08-25 in Nestimate `R/hypergraph_laplacian.R` (all three
+      verbs; HyperNetX parity < 1e-12, brute-force formula tests, 64 shipped
+      assertions). **Weighted hypergraph Laplacian + spectral clustering +
+      transductive classification** (Zhou, Huang & Schölkopf 2006 — `papers/2006-NeurIPS-
       LearningWithHypergraphs-Zhou.pdf`). One Laplacian unlocks three verbs:
       clustering (fits `cluster_data()` family), transductive label spreading
       (THE non-neural text classifier — no R implementation exists), and
@@ -25,7 +27,10 @@ text/NLP framing. Checked 2026-08-24: none of these exist anywhere on CRAN.
       centralities in `hypergraph_centrality()`; their Thm-level result:
       edge-INdependent weights collapse to a graph random walk, so the
       edge-dependent case is where hypergraphs genuinely add information.
-- [ ] **EDVW spectral clustering — the UNSUPERVISED tier-2 method** (Hayashi,
+- [x] DONE 2026-08-25 (covered by the same implementation:
+      `hypergraph_cluster(hg, type = "random_walk")` on a weighted incidence
+      IS EDVW clustering; oracle parity verified). **EDVW spectral clustering
+      — the UNSUPERVISED tier-2 method** (Hayashi,
       Aksoy, Park & Park 2020 — `papers/2020-CIKM-HypergraphClustering-
       Hayashi.pdf`, verified). Edge-dependent vertex weights (e.g. tf-idf of
       word-in-document) give a weighted incidence matrix -> random-walk
