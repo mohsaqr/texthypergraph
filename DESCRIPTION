@@ -1,0 +1,39 @@
+Package: texthypergraph
+Type: Package
+Title: Hypergraph Text Analysis
+Version: 0.1.0
+Authors@R: c(
+    person(
+      given = "Mohammed",
+      family = "Saqr",
+      role = c("aut", "cre", "cph"),
+      email = "mohammed.saqr@uef.fi",
+      comment = c(ORCID = "0000-0001-5881-3109")
+    )
+  )
+Description: Builds weighted hypergraphs from text corpora and analyzes them
+    with tidy verbs. Documents and words form a bipartite incidence structure
+    that becomes a hypergraph in either orientation: documents as vertices
+    connected by shared words, or words as vertices connected by shared
+    documents. Term weighting supports raw counts and smoothed tf-idf
+    following Manning, Raghavan and Schutze (2008,
+    ISBN:9780521865715). Spectral analysis (clustering, transductive
+    classification), structural measures, and tensor eigenvector centralities
+    are delegated to the 'Nestimate' engines implementing Zhou, Huang and
+    Schoelkopf (2006) and Hayashi, Aksoy, Park and Park (2020)
+    <doi:10.1145/3340531.3412034>.
+License: MIT + file LICENSE
+URL: https://github.com/mohsaqr/texthypergraph
+BugReports: https://github.com/mohsaqr/texthypergraph/issues
+Encoding: UTF-8
+Depends:
+    R (>= 4.4.0)
+Imports:
+    Nestimate (>= 0.9.0),
+    stats
+Suggests:
+    testthat (>= 3.0.0)
+Additional_repositories: https://mohsaqr.r-universe.dev
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

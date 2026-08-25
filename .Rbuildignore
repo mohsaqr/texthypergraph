@@ -1,0 +1,14 @@
+^papers$
+^repos$
+^TODO\.md$
+^ROADMAP\.md$
+^CLAUDE\.md$
+^HANDOFF\.md$
+^LEARNINGS\.md$
+^CHANGES\.md$
+^\.claude$
+^\.github$
+^tmp$
+^.*\.Rproj$
+^\.Rproj\.user$
+^local_testing_and_equivalence$

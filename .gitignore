@@ -1,1 +1,9 @@
 .DS_Store
+HANDOFF.md
+LEARNINGS.md
+CHANGES.md
+local_testing_and_equivalence/
+tmp/
+.Rproj.user/
+*.Rcheck/
+*.tar.gz
