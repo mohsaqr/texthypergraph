@@ -125,6 +125,15 @@ native R — and the statistical hypergraph layer is the genuine gap.
 - `papers/` — 11 PDFs, every one title-verified after download (see TODO.md
   for the reading order).
 - `TODO.md` — consolidated todos with target repo per item.
+- `repos/` — one note per relevant repo/package, each separating VERIFIED
+  facts (with date) from background knowledge, and naming its role for us
+  (oracle / reference / out-of-scope):
+  - ours: `nestimate-hypergraph-module.md` (the anchor)
+  - R: `hyperg-r.md`, `simplicialcomplex-r.md`, `text-r.md`, `bertopic.md`
+  - Python structural: `xgi.md`, `hypernetx.md`, `hypergraphx.md`
+  - Python neural: `deephypergraph.md`, `hypergat-textclassification.md`,
+    `allset.md`
+  - TDA: `tda-python.md`
 
 Related: `Nestimate/todo/COVERAGE-CATCHUP.md` (the Nestimate-side feature
 items; §3 = HyperGAT), `Nestimate/HONETS-DELEGATION-PLAN.md` (higher-order
