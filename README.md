@@ -134,6 +134,7 @@ native R — and the statistical hypergraph layer is the genuine gap.
   - Python neural: `deephypergraph.md`, `hypergat-textclassification.md`,
     `allset.md`
   - TDA: `tda-python.md`
+  - HON-family Python (honets paradigm): `pathpy-hon-python.md`
 
 Related: `Nestimate/todo/COVERAGE-CATCHUP.md` (the Nestimate-side feature
 items; §3 = HyperGAT), `Nestimate/HONETS-DELEGATION-PLAN.md` (higher-order
