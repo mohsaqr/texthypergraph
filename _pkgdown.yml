@@ -20,10 +20,22 @@ reference:
   - hg_cluster
   - hg_classify
   - hg_null_test
+- title: Spectral engines
+  desc: The in-package Zhou (2006) and Hayashi (2020) machinery behind the verbs.
+  contents:
+  - hypergraph_laplacian
+  - hypergraph_cluster
+  - hypergraph_transduction
 - title: Methods and accessors
   contents:
   - print.text_hypergraph
   - as.data.frame.text_hypergraph
+  - print.net_hypergraph_cluster
+  - summary.net_hypergraph_cluster
+  - as.data.frame.net_hypergraph_cluster
+  - print.net_hypergraph_transduction
+  - summary.net_hypergraph_transduction
+  - as.data.frame.net_hypergraph_transduction
 - title: Data
   contents:
   - covid_abstracts
