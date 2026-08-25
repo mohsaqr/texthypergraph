@@ -31,9 +31,13 @@ window, threshold).
 
 ## v0.1 — Scaffold + the bridge (no new math)
 
-**Status 2026-08-25:** skeleton, `text_hypergraph()`, and the four delegating
-verbs are DONE — 60 tests pass, engine parity `identical()`, check clean
-(1 environmental NOTE). Remaining: bundled corpus + bridge vignette + README.
+**Status 2026-08-25: v0.1 COMPLETE.** Skeleton, `text_hypergraph()`
+(+ curly-apostrophe normalization), `stop_words_en()`, four delegating verbs
+(+ `sort_by`/`n` on centrality), `covid_abstracts` dataset (165 abstracts,
+2020-2024), full worked vignette (clustering + k-sensitivity + few-label
+classification with verified numbers), package README. 74 tests pass, engine
+parity `identical()`, R CMD check 0 errors / 0 warnings / 1 environmental
+NOTE.
 
 - Package skeleton: DESCRIPTION, testthat 3e, pkgdown, CI matrix;
   papers/repos/TODO/ROADMAP `.Rbuildignore`d.

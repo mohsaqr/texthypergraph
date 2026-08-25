@@ -7,6 +7,8 @@
 hg_centrality(
   hg,
   type = c("clique", "Z", "H"),
+  sort_by = NULL,
+  n = Inf,
   max_iter = 1000L,
   tol = 1e-08,
   normalize = TRUE
@@ -18,12 +20,18 @@ hg_centrality(
 \item{type}{Centralities to compute; any of \code{"clique"}, \code{"Z"}, \code{"H"}
 (default: all three).}
 
+\item{sort_by}{Optional centrality name to sort by, descending (ties broken
+by node name); default keeps node order.}
+
+\item{n}{Return only the first \code{n} rows after sorting (default all) --
+e.g. \verb{sort_by = "clique", n = 10} for the ten most central nodes.}
+
 \item{max_iter, tol, normalize}{Passed to
 \code{\link[Nestimate:hypergraph_centrality]{Nestimate::hypergraph_centrality()}}.}
 }
 \value{
-A base \code{data.frame}, one row per node, with one column per
-requested centrality.
+A base \code{data.frame}, one row per node (or the \code{n} requested rows),
+with one column per requested centrality.
 }
 \description{
 Delegates to \code{\link[Nestimate:hypergraph_centrality]{Nestimate::hypergraph_centrality()}}: clique-expansion

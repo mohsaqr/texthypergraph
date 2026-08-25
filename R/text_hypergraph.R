@@ -7,11 +7,13 @@
 # weighting, and the tidy text-facing surface.
 
 # Tokenize a character vector into a list of word vectors: lowercase
-# (optionally), split on non-letter runs, trim edge apostrophes, drop empties.
+# (optionally), normalize curly apostrophes (U+2019, written escaped for ASCII-clean source) so possessives stay one
+# token, split on non-letter runs, trim edge apostrophes, drop empties.
 .thg_tokenize <- function(text, lowercase) {
   if (isTRUE(lowercase)) {
     text <- tolower(text)
   }
+  text <- gsub("\u2019", "'", text)
   tokens <- strsplit(text, "[^[:alpha:]']+")
   lapply(tokens, \(x) {
     x <- gsub("^'+|'+$", "", x)
@@ -260,7 +262,14 @@ print.text_hypergraph <- function(x, ...) {
     if (identical(x$text$nodes, "doc")) "documents" else "words",
     x$text$weighting
   ))
-  NextMethod()
+  size <- as.integer(sub("size_", "", names(x$size_distribution)))
+  sizes <- rep(size, x$size_distribution)
+  cat(sprintf(
+    "Hyperedges: %d (%s); sizes %d-%d, median %g\n",
+    x$n_hyperedges,
+    if (identical(x$text$nodes, "doc")) "words" else "documents",
+    min(sizes), max(sizes), stats::median(sizes)
+  ))
   invisible(x)
 }
 

@@ -1,7 +1,7 @@
 Package: texthypergraph
 Type: Package
 Title: Hypergraph Text Analysis
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(
       given = "Mohammed",
@@ -26,14 +26,18 @@ License: MIT + file LICENSE
 URL: https://github.com/mohsaqr/texthypergraph
 BugReports: https://github.com/mohsaqr/texthypergraph/issues
 Encoding: UTF-8
+LazyData: true
 Depends:
     R (>= 4.4.0)
 Imports:
     Nestimate (>= 0.9.0),
     stats
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Additional_repositories: https://mohsaqr.r-universe.dev
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

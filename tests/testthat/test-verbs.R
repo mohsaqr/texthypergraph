@@ -91,3 +91,16 @@ test_that("every verb rejects a non-hypergraph with a classed error", {
   expect_error(hg_classify(NULL, labels = c(a = "x")),
                class = "thg_bad_input")
 })
+
+test_that("hg_centrality sort_by and n select without user-side subsetting", {
+  hg <- text_hypergraph(verb_corpus, stop_words = verb_stop)
+  full <- hg_centrality(hg, type = "clique")
+  top <- hg_centrality(hg, type = "clique", sort_by = "clique", n = 3)
+  expect_identical(nrow(top), 3L)
+  expect_identical(top$clique, sort(full$clique, decreasing = TRUE)[1:3])
+  expect_true(all(diff(top$clique) <= 0))
+  expect_error(
+    hg_centrality(hg, type = "clique", sort_by = "Z"),
+    "clique"
+  )
+})

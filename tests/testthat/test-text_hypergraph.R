@@ -121,3 +121,28 @@ test_that("print announces the corpus and delegates to the engine", {
   expect_output(print(hg), "Text hypergraph: 2 documents, 4 words")
   expect_invisible(print(hg))
 })
+
+test_that("covid_abstracts dataset is intact", {
+  expect_identical(dim(covid_abstracts), c(165L, 4L))
+  expect_identical(names(covid_abstracts),
+                   c("doc", "title", "abstract", "year"))
+  expect_identical(anyDuplicated(covid_abstracts$doc), 0L)
+  expect_identical(sort(unique(covid_abstracts$year)), 2020:2024)
+})
+
+test_that("curly apostrophes keep possessives as one token", {
+  hg <- text_hypergraph(c(d = "the children\u2019s teacher's plan"))
+  expect_identical(
+    as.data.frame(hg, what = "vocabulary")$word,
+    c("children's", "plan", "teacher's", "the")
+  )
+})
+
+test_that("stop_words_en is a clean, deterministic function-word list", {
+  s <- stop_words_en()
+  expect_identical(s, sort(s))
+  expect_identical(anyDuplicated(s), 0L)
+  expect_identical(s, tolower(s))
+  expect_true(all(c("the", "and", "of") %in% s))
+  expect_false(any(c("covid", "study", "learning") %in% s))
+})

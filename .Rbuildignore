@@ -1,4 +1,5 @@
 ^papers$
+^data-raw$
 ^repos$
 ^TODO\.md$
 ^ROADMAP\.md$

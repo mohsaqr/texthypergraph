@@ -1,141 +1,118 @@
 # texthypergraph
 
-Working folder for **hypergraph methods for text / NLP and sequence data** —
-literature, links, and the todos that fell out of the 2026-08-24 coverage
-comparisons run from Nestimate. Not a package (yet); a staging ground for
-deciding what lands in Nestimate (statistical R side), Saqrlab (simulation),
-or carm-text / carm-ml (JS side).
+Hypergraph text analysis in R: a corpus goes in, a weighted document–word
+hypergraph comes out, and tidy verbs analyze it — spectral clustering,
+transductive classification, structural measures, and tensor eigenvector
+centralities. The spectral and structural engines are
+[Nestimate](https://github.com/mohsaqr/Nestimate)'s implementations of Zhou,
+Huang & Schölkopf (2006) and Hayashi, Aksoy, Park & Park (2020); this package
+owns the text-facing layer. No Python, no NLP dependencies.
 
-Origin: reading Ding et al. (2020) "HyperGAT" against Nestimate's hypergraph
-module (`build_hypergraph`, `bipartite_groups`, `hypergraph_measures`,
-`hypergraph_centrality` with tensor Z/H eigenvectors, `clique_expansion`) and
-against CRAN's `HyperG` / `SimplicialComplex`.
+A document–word corpus is a bipartite incidence structure, which is a
+hypergraph in either orientation:
 
-## Method map
+- `nodes = "doc"` (default): documents are vertices, each word is a hyperedge
+  over the documents containing it — the orientation for document clustering
+  and few-label document classification.
+- `nodes = "word"`: words are vertices, each document is a hyperedge — the
+  orientation for vocabulary structure and central-term ranking.
 
-### 1. Non-neural / statistical (fits the R ecosystem)
+## Installation
 
-| Method | Paper (in `papers/`) | Status vs our stack |
+```r
+install.packages(
+  "texthypergraph",
+  repos = c("https://mohsaqr.r-universe.dev", getOption("repos"))
+)
+```
+
+## Quick start
+
+```r
+library(texthypergraph)
+
+hg <- text_hypergraph(
+  covid_abstracts,          # bundled: 165 COVID-19 education abstracts, 2020-2024
+  column = "abstract",
+  id = "doc",
+  weight = "tfidf",
+  stop_words = stop_words_en(),
+  min_count = 3L
+)
+hg
+#> Text hypergraph: 165 documents, 1464 words (documents as nodes, weight = tfidf)
+#> Hyperedges: 1464 (words); sizes 1-140, median 4
+
+hg_cluster(hg, k = 4, type = "random_walk", seed = 1)   # Hayashi EDVW pipeline
+hg_classify(hg, labels = c("2-s2.0-85085897904" = "early",
+                           "2-s2.0-85107489479" = "late"))
+hg_measures(hg, what = "summary")
+```
+
+Every verb returns a base `data.frame`. Word-level structure uses the same
+API in the other orientation:
+
+```r
+word_hg <- text_hypergraph(covid_abstracts, column = "abstract", id = "doc",
+                           nodes = "word", weight = "tfidf",
+                           stop_words = stop_words_en(), min_count = 3L)
+hg_centrality(word_hg, type = "clique", sort_by = "clique", n = 10)
+```
+
+On the bundled corpus this ranking reads *covid*, *pandemic*, *education*,
+*study*, *students*, *learning*, *online*, *teaching* — the corpus in
+miniature, recovered without reading an abstract. (*study* and *research*
+also rank high: abstract boilerplate worth adding to the stop list, as the
+vignette does with `c(stop_words_en(), "study", ...)`.)
+
+## Verbs
+
+| Verb | Does | Engine |
 |---|---|---|
-| Hypergraph Laplacian: spectral clustering, **transductive classification**, embedding | Zhou, Huang & Schölkopf, NeurIPS 2006 | MISSING — parked as Nestimate todo; weighted version would exceed CRAN `HyperG` |
-| Random walks with edge-dependent vertex weights (Laplacian, PageRank-style ranking) | Chitra & Raphael, ICML 2019 | MISSING — natural sibling of our Z/H tensor centralities |
-| **EDVW spectral clustering** (tf-idf as word-in-document weight -> random-walk Laplacian -> spectral/NMF clustering; the unsupervised better-than-LDA route) | Hayashi, Aksoy, Park & Park, CIKM 2020 | MISSING everywhere in R — shares all machinery with the Zhou item |
-| kNN embedding hypergraph (contrastive embeddings -> weighted kNN hyperedges -> spectral clustering + our measures) | — (composition; unweighted precedent `HyperG::knn_hypergraph`) | MISSING — tier-3 -> tier-2 bridge, see TODO |
-| Tensor Z/H-eigenvector centrality (Benson 2019) | — (implemented) | SHIPPED in Nestimate `hypergraph_centrality()` |
-| Hypergraph partitioning (hMETIS/KaHyPar lineage) for document clustering | — (classical IR) | out of scope for now |
-| Topic-model hyperedges (LDA top-K words per topic) | HyperGAT Sec. 3.2 | construction only; topic modeling itself = carm-text territory |
+| `text_hypergraph()` | corpus → weighted hypergraph (counts or smoothed tf-idf; stop words; `min_count`) | `Nestimate::bipartite_groups()` |
+| `hg_cluster()` | spectral document/word clustering (`"zhou"` or `"random_walk"` EDVW) | `Nestimate::hypergraph_cluster()` |
+| `hg_classify()` | transductive label spreading from a few labeled nodes | `Nestimate::hypergraph_transduction()` |
+| `hg_centrality()` | clique-expansion + tensor Z/H eigenvector centralities, with `sort_by`/`n` | `Nestimate::hypergraph_centrality()` |
+| `hg_measures()` | tidy structural tables: nodes, edges, overlaps, summary | `Nestimate::hypergraph_measures()` |
 
-### 2. Text-specific hypergraph classifiers (neural)
+`as.data.frame()` on a text hypergraph returns the tidy document–word weight
+table; `what = "documents"` and `what = "vocabulary"` return the other two
+corpus tables.
 
-| Model | Paper (in `papers/`) | Construction |
-|---|---|---|
-| **HyperGAT** | Ding, Wang, Li, Li & Liu, EMNLP 2020 | sentence = hyperedge + LDA-topic hyperedges; dual (node/edge-level) attention. Code: github.com/kaize0409/HyperGAT_TextClassification — verified 2026-08-24: construction in `utils.py::get_slice()`; the paper's sliding-window alternative is NOT in the code |
-| HGAT (short text, semi-supervised) | Hu, Yang, Shi, Ji & Li, EMNLP 2019 | heterogeneous info network: text + topics + entities; dual-level attention. Predecessor of HyperGAT's semantic edges |
+The full worked analysis — clustering, a `k` sensitivity check, few-label
+classification and its honest limits — is the package vignette:
 
-### 3. General hypergraph neural networks (applicable once a text hypergraph exists)
+```r
+vignette("texthypergraph")
+```
 
-| Model | Paper (in `papers/`) | Idea |
-|---|---|---|
-| HGNN | Feng, You, Zhang, Ji & Gao, AAAI 2019 | spectral convolution via the Zhou 2006 normalized Laplacian |
-| HyperGCN | Yadati et al., NeurIPS 2019 | approximate hyperedges by mediator-weighted pairwise edges, then GCN |
-| HNHN | Dong, Sawin & Bengio, 2020 | alternating node -> hyperedge -> node nonlinear message passing |
-| AllSet / AllSetTransformer | Chien, Pan, Peng & Milenkovic, ICLR 2022 | both aggregations as learned multiset functions (Deep Sets / Set Transformer); strongest general framework |
+## Existing quanteda/tidytext pipelines
 
-Not archived here (later continuation, fetch when needed): ED-HNN, hypergraph
-diffusion, hypergraph transformers / state-space models (2023-2025).
+Any long document–word table is already the incidence structure; no
+conversion layer is needed (see the vignette's bridge section):
 
-### 0. Umbrella survey (context)
+```r
+Nestimate::bipartite_groups(tidytext::tidy(my_dfm),
+                            player = "term", group = "document",
+                            weight = "count")
+```
 
-| Paper (in `papers/`) | Scope — and what it does NOT cover |
-|---|---|
-| Li, Peng, Li, Xia, Yang, Sun, Yu & He, "A Survey on Text Classification: From Traditional to Deep Learning", ACM TIST 13(2), 2022 (doi 10.1145/3495162) | Supervised classification 1961-2021: Traditional (BoW/TF-IDF + NB/KNN/SVM/DT/RF/XGBoost) and Deep (ReNN/MLP/RNN/CNN/**Attention**/Transformer/**GCN**) branches, with benchmark tables (its Table 4 = accuracy comparisons) and dataset/metric summaries. XLNet covered. Its taxonomy STOPS at GCN — **hypergraph methods are absent** (no HyperGAT/hypergraph hits in the extractable text; checked 2026-08-24), as are unsupervised discovery and non-neural spectral/transductive methods. This folder is effectively the continuation of its GCN + Attention branches into exactly those gaps. |
+## Research base and roadmap
 
-### 4. PLM baseline (context, not hypergraph)
+The package grew out of a literature survey of hypergraph text/NLP methods;
+the `papers/` folder, per-repo notes in `repos/` (each naming its role as
+equivalence oracle or reference — see `repos/README.md`), and `TODO.md`
+remain in-tree as the research base. `ROADMAP.md` is the release plan:
+windowed HyperGAT-style hyperedges and sbert-powered kNN embedding
+hypergraphs land in v0.2.
 
-| Model | Paper (in `papers/`) | Implementations |
-|---|---|---|
-| XLNet | Yang, Dai, Yang, Carbonell, Salakhutdinov & Le, NeurIPS 2019 | Python only: official github.com/zihangdai/xlnet (TF 1.x, per the paper's footnote) and Hugging Face `transformers` (`XLNetForSequenceClassification`). **No native R implementation exists** — R access is wrapper-only: CRAN `text` package (reticulate -> Hugging Face, any HF model id) or raw `reticulate`. Kept here as the strong-baseline family HyperGAT-era papers compare against ("be more with LESS" = fewer parameters than PLMs). |
+## References
 
-## R / CRAN landscape (checked 2026-08-24 via CRAN_package_db)
-
-- `HyperG` 1.0.0 — only general hypergraph toolkit; undirected, UNWEIGHTED,
-  dormant since 2021, heavy deps (igraph + mclust + RSpectra).
-- `SimplicialComplex` 0.1.2 — geometric point-cloud TDA; no networks/sequences.
-- `causalHyperGraph` (CNA drawing), `hypergraph.sizing` (multiple testing —
-  name red herring), `ghypernet` (plain-graph hypergeometric ensembles, kin to
-  HYPA but not hypergraphs). `rhype` no longer on CRAN. Bioconductor:
-  `hypergraph`/`hyperdraw` (ancient data structures).
-- **No hypergraph text classification exists in R at all** — not even the
-  non-neural Zhou 2006 transductive classifier. No HGNN layers for torch-R.
-
-Consequence: the parked items below are first-in-R contributions, not catch-up.
-
-## The existing bridge (no new code needed)
-
-A `quanteda` dfm / `tidytext` tidy table IS a document-word incidence
-structure. `Nestimate::bipartite_groups(long_df, player = "word",
-group = "doc", weight = "n")` ingests it today: documents as weighted
-hyperedges over words, feeding `hypergraph_measures()` and
-`hypergraph_centrality()`. Classification/clustering unlocks once the Zhou
-Laplacian lands. Vignette candidate.
-
-## Python ecosystem (verified 2026-08-25)
-
-Python has everything R lacks — which matters to us mainly as ORACLES for the
-local equivalence suites (reticulate, never declared deps, pyHON/pathpy
-pattern):
-
-- **XGI** — measures, connectivity, and (verified in docs) `h_eigenvector_`,
-  `z_eigenvector_`, `clique_eigenvector_centrality`, Katz: an independent
-  second oracle for Nestimate's SHIPPED `hypergraph_centrality()` trio.
-- **HyperNetX** (PNNL) — verified in source: `laplacians_clustering.py`
-  implements the Hayashi EDVW pipeline exactly (`prob_trans`, `get_pi`,
-  `norm_lap`, `spec_clus`, citing the paper — Aksoy is PNNL). THE oracle for
-  the parked Zhou/Hayashi Laplacian item. Also: hypergraph modularity (Kumar),
-  homology, temporal hypergraphs, generators.
-- **HypergraphX (HGX)** — measures, communities, motifs (Battiston group).
-- **DHG (DeepHypergraph)** — HGNN/HGNN+/HyperGCN/UniGNN on PyTorch;
-  `HypergraphConv` also in PyTorch Geometric; TopoNetX/TopoModelX for
-  topological deep learning. (Neural tier; reference-only for us.)
-- **TDA**: gudhi, ripser.py, giotto-tda — outclass both R TDA packages;
-  candidate oracles for `wasserstein_distance()` too.
-- **Text tiers**: BERTopic, Top2Vec, sentence-transformers, CTM — all native.
-
-Consequence: every parked Nestimate item has a Python reference
-implementation available for equivalence testing; the first-in-R claim stands.
-
-## What R actually has (verified 2026-08-24 against CRAN)
-
-- **Native CRAN**: `uwot` (UMAP), `dbscan` (HDBSCAN), `BTM` (short-text
-  topics), `word2vec`/`doc2vec` (older native embeddings), `topicmodels`/`stm`
-  (classical). `HyperG::knn_hypergraph` / `cluster_spectral` exist but are
-  UNWEIGHTED only.
-- **Python wrappers on CRAN**: `text` (HF transformer embeddings via
-  reticulate — SimCSE/E5/BGE-class by model id), `BERTopic` 0.1.0 (reticulate
-  wrapper of Python BERTopic — fit/transform/reduce/visualize).
-- **Missing entirely**: native contrastive encoders; weighted hypergraph
-  Laplacian; Zhou transduction; Hayashi EDVW clustering; weighted kNN
-  hypergraphs. The last four are the parked Nestimate items.
-
-So the embedding step is wrapper-only, but everything downstream of it can be
-native R — and the statistical hypergraph layer is the genuine gap.
-
-## Files
-
-- `papers/` — 11 PDFs, every one title-verified after download (see TODO.md
-  for the reading order).
-- `TODO.md` — consolidated todos with target repo per item.
-- `repos/` — one note per relevant repo/package, each separating VERIFIED
-  facts (with date) from background knowledge, and naming its role for us
-  (oracle / reference / out-of-scope):
-  - ours: `nestimate-hypergraph-module.md` (the anchor)
-  - R: `hyperg-r.md`, `simplicialcomplex-r.md`, `text-r.md`, `bertopic.md`
-  - Python structural: `xgi.md`, `hypernetx.md`, `hypergraphx.md`
-  - Python neural: `deephypergraph.md`, `hypergat-textclassification.md`,
-    `allset.md`
-  - TDA: `tda-python.md`
-  - HON-family Python (honets paradigm): `pathpy-hon-python.md`
-
-Related: `Nestimate/todo/COVERAGE-CATCHUP.md` (the Nestimate-side feature
-items; §3 = HyperGAT), `Nestimate/HONETS-DELEGATION-PLAN.md` (higher-order
-delegation — hypergraph module is NOT part of honets).
+- Zhou, D., Huang, J., & Schölkopf, B. (2006). Learning with hypergraphs:
+  Clustering, classification, and embedding. *NeurIPS 2006*.
+- Hayashi, K., Aksoy, S. G., Park, C. H., & Park, H. (2020). Hypergraph
+  random walks, Laplacians, and clustering. *CIKM 2020*.
+  doi:10.1145/3340531.3412034
+- Ding, K., Wang, J., Li, J., Li, D., & Liu, H. (2020). Be more with less:
+  Hypergraph attention networks for inductive text classification.
+  *EMNLP 2020*.

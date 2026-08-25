@@ -80,10 +80,14 @@ hg_measures <- function(hg, what = c("nodes", "edges", "overlap", "summary")) {
 #' @param hg A [text_hypergraph()] (or any Nestimate `net_hypergraph`).
 #' @param type Centralities to compute; any of `"clique"`, `"Z"`, `"H"`
 #'   (default: all three).
+#' @param sort_by Optional centrality name to sort by, descending (ties broken
+#'   by node name); default keeps node order.
+#' @param n Return only the first `n` rows after sorting (default all) --
+#'   e.g. `sort_by = "clique", n = 10` for the ten most central nodes.
 #' @param max_iter,tol,normalize Passed to
 #'   [Nestimate::hypergraph_centrality()].
-#' @return A base `data.frame`, one row per node, with one column per
-#'   requested centrality.
+#' @return A base `data.frame`, one row per node (or the `n` requested rows),
+#'   with one column per requested centrality.
 #' @examples
 #' hg <- text_hypergraph(c(
 #'   a = "salt and soup and onions",
@@ -93,15 +97,29 @@ hg_measures <- function(hg, what = c("nodes", "edges", "overlap", "summary")) {
 #' hg_centrality(hg, type = "clique")
 #' @export
 hg_centrality <- function(hg, type = c("clique", "Z", "H"),
+                          sort_by = NULL, n = Inf,
                           max_iter = 1000L, tol = 1e-8, normalize = TRUE) {
   .thg_check_hg(hg)
   type <- match.arg(type, several.ok = TRUE)
+  stopifnot(
+    "`n` must be a single count >= 1" =
+      length(n) == 1L && (is.infinite(n) || (is.finite(n) && n >= 1))
+  )
   cen <- Nestimate::hypergraph_centrality(
     hg, type = type, max_iter = max_iter, tol = tol, normalize = normalize
   )
   out <- data.frame(node = names(cen[[1L]]), row.names = NULL)
   values <- lapply(cen, \(v) unname(as.numeric(v)))
-  cbind(out, values)
+  out <- cbind(out, values)
+  if (!is.null(sort_by)) {
+    sort_by <- match.arg(sort_by, choices = type)
+    out <- out[order(-out[[sort_by]], out$node), , drop = FALSE]
+    rownames(out) <- NULL
+  }
+  if (is.finite(n) && n < nrow(out)) {
+    out <- out[seq_len(n), , drop = FALSE]
+  }
+  out
 }
 
 #' Spectral clustering of a hypergraph, as a tidy table
