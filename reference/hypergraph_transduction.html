@@ -23,7 +23,7 @@ a handful of labeled ones."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,8 @@ a handful of labeled ones."></head><body>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/constructions.html">Windowed and embedding hypergraphs</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/benchmarks.html">Benchmarks: R8, R52, MR, Ohsumed, 20NG</a></li>
+    <li><a class="dropdown-item" href="../articles/constructions.html">Windowed and embedding hypergraphs</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -72,7 +73,8 @@ a handful of labeled ones.</p>
 <span>  <span class="va">labels</span>,</span>
 <span>  xi <span class="op">=</span> <span class="fl">0.99</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zhou"</span>, <span class="st">"random_walk"</span><span class="op">)</span>,</span>
-<span>  edge_weights <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  edge_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  normalization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"class_mass"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -100,6 +102,15 @@ initial labels.</p></dd>
 <dt id="arg-type-edge-weights">type, edge_weights<a class="anchor" aria-label="anchor" href="#arg-type-edge-weights"></a></dt>
 <dd><p>Passed to <code><a href="hypergraph_laplacian.html">hypergraph_laplacian()</a></code>.</p></dd>
 
+
+<dt id="arg-normalization">normalization<a class="anchor" aria-label="anchor" href="#arg-normalization"></a></dt>
+<dd><p>Decision rule applied to the score matrix before
+the argmax. <code>"none"</code> (default) is the raw Zhou (2006) rule.
+<code>"class_mass"</code> divides each class column by its total spread mass
+(class-mass normalization, Zhu et al. 2003) before the argmax; use it
+when the labeled seeds are class-imbalanced, where the raw rule can
+collapse every prediction onto the majority class.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -115,6 +126,8 @@ initial labels.</p></dd>
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Zhou, D., Huang, J., &amp; Scholkopf, B. (2006). Learning with hypergraphs:
 Clustering, classification, and embedding. <em>NeurIPS 19</em>.</p>
+<p>Zhu, X., Ghahramani, Z., &amp; Lafferty, J. (2003). Semi-supervised learning
+using Gaussian fields and harmonic functions. <em>ICML 20</em>.</p>
     </div>
 
     <div class="section level2">

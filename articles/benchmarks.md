@@ -1,0 +1,208 @@
+# Benchmarks: R8, R52, MR, Ohsumed, 20NG
+
+How far does closed-form hypergraph label spreading go on the five
+standard text-classification benchmarks? This article reports test-set
+accuracy of `text_hypergraph(sparse = TRUE)` +
+[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
+on R8, R52, MR, Ohsumed, and 20-Newsgroups, against a tf-idf
+nearest-centroid baseline and against the published accuracy tables in
+Ding et al. (2020). Every number below was produced by the harness in
+`benchmarks/` of the package repository; nothing is copied from memory.
+
+## Setup
+
+The corpora and train/test splits are the exact files of Yao, Mao & Luo
+(2019), which Ding et al. (2020) also use – any other cleaning would
+make the numbers incomparable. `benchmarks/download.sh` fetches them.
+Each dataset becomes a sparse document–word hypergraph (documents are
+vertices, words are hyperedges, tf-idf incidence weights); the training
+documents are the labeled seeds; the spreading solution classifies every
+test document in one conjugate-gradient solve per class.
+
+``` r
+
+hg <- text_hypergraph(docs, weight = "tfidf", sparse = TRUE)
+fit <- hg_classify(hg, labels = train_labels, normalization = "class_mass")
+```
+
+Two checks tie the pipeline to the published setup. The split sizes
+match Ding et al.’s Table 1 exactly on all five datasets. The vocabulary
+sizes match exactly on R8 (7,688 hyperedges) and R52 (8,892); on MR,
+Ohsumed and 20NG ours are smaller (18,151 vs 18,764; 13,349 vs 14,157;
+36,970 vs 42,757) because the package tokenizer drops digit-containing
+tokens. MR has one document unreachable from the rest of the corpus; the
+harness runs on the giant component and would score unreachable test
+documents as errors (here that document is not in the test set).
+
+## Full-split results
+
+`accuracy` is test-set accuracy with a 1,000-resample percentile
+bootstrap CI; `fit_s` is the wall-clock seconds for the transductive
+solve itself.
+
+``` r
+
+results <- read.csv("benchmark-results.csv")
+knitr::kable(
+  subset(results,
+         select = c(dataset, method, accuracy, ci_low, ci_high, macro_f1,
+                    build_s, fit_s)),
+  digits = 4
+)
+```
+
+| dataset | method | accuracy | ci_low | ci_high | macro_f1 | build_s | fit_s |
+|:---|:---|---:|---:|---:|---:|---:|---:|
+| 20ng | hypergraph_zhou_cmn | 0.8477 | 0.8399 | 0.8559 | 0.8406 | 41.416 | 1.223 |
+| 20ng | hypergraph_random_walk_cmn | 0.7869 | 0.7780 | 0.7963 | 0.7893 | 41.283 | 2.734 |
+| 20ng | hypergraph_zhou | 0.1020 | 0.0952 | 0.1091 | 0.0583 | 40.435 | 1.359 |
+| 20ng | tfidf_centroid | 0.7796 | 0.7699 | 0.7890 | 0.7725 | 42.593 | 0.076 |
+| R8 | hypergraph_zhou_cmn | 0.8451 | 0.8291 | 0.8593 | 0.6730 | 6.541 | 0.167 |
+| R8 | hypergraph_random_walk_cmn | 0.8173 | 0.8017 | 0.8342 | 0.6470 | 6.444 | 0.265 |
+| R8 | hypergraph_zhou | 0.4947 | 0.4737 | 0.5162 | 0.0827 | 5.921 | 0.104 |
+| R8 | tfidf_centroid | 0.9246 | 0.9136 | 0.9361 | 0.8733 | 5.771 | 0.018 |
+| R52 | hypergraph_zhou_cmn | 0.5284 | 0.5070 | 0.5471 | 0.3700 | 9.138 | 0.801 |
+| R52 | hypergraph_random_walk_cmn | 0.5210 | 0.5004 | 0.5390 | 0.3771 | 5.227 | 1.126 |
+| R52 | hypergraph_zhou | 0.4217 | 0.4019 | 0.4412 | 0.0114 | 6.680 | 0.851 |
+| R52 | tfidf_centroid | 0.8797 | 0.8668 | 0.8917 | 0.7008 | 7.833 | 0.035 |
+| ohsumed | hypergraph_zhou_cmn | 0.4702 | 0.4551 | 0.4860 | 0.4360 | 10.998 | 0.331 |
+| ohsumed | hypergraph_random_walk_cmn | 0.5110 | 0.4964 | 0.5278 | 0.4616 | 9.715 | 0.630 |
+| ohsumed | hypergraph_zhou | 0.1459 | 0.1348 | 0.1563 | 0.0111 | 9.218 | 0.349 |
+| ohsumed | tfidf_centroid | 0.6347 | 0.6196 | 0.6500 | 0.5826 | 8.271 | 0.019 |
+| mr | hypergraph_zhou_cmn | 0.7684 | 0.7538 | 0.7811 | 0.7683 | 6.402 | 0.055 |
+| mr | hypergraph_random_walk_cmn | 0.7563 | 0.7423 | 0.7698 | 0.7560 | 5.987 | 0.135 |
+| mr | hypergraph_zhou | 0.7414 | 0.7273 | 0.7561 | 0.7354 | 5.775 | 0.055 |
+| mr | tfidf_centroid | 0.6851 | 0.6708 | 0.7006 | 0.6850 | 3.045 | 0.007 |
+
+Three findings. First, on the two class-balanced datasets the hypergraph
+classifier beats the centroid baseline outright: 0.8477 vs 0.7796 on
+20NG and 0.7684 vs 0.6851 on MR. Second, on the skewed multi-class
+corpora (R8, R52, Ohsumed) the centroid wins; label spreading pays for
+class imbalance even after normalization, and R52’s 52 heavily skewed
+classes are its worst case (0.5284 vs 0.8797). Third, the
+`hypergraph_zhou` rows – the raw Zhou (2006) argmax with no
+normalization – collapse onto the majority class (0.4947 on R8 is
+exactly the majority-class rate; 0.1020 on 20NG), which is why
+`normalization = "class_mass"` (Zhu, Ghahramani & Lafferty 2003) exists
+and is used everywhere else in this article. The EDVW walk
+(`hypergraph_random_walk_cmn`) is best on Ohsumed (0.5110 vs 0.4702) and
+second elsewhere.
+
+The cost side: the largest solve – 20 classes over 18,846 documents x
+36,970 hyperedges – fits in 1.2 seconds on a laptop CPU, with no
+training, no gradient steps and no GPU. Ding et al.’s Table 3 reports
+1,479 MB of GPU memory for TextGCN and 180 MB for HyperGAT on the same
+corpus.
+
+## Against the published tables
+
+Published rows are means over 10 runs from Ding et al. (2020), Table 2;
+our transductive rows are deterministic given the split.
+
+``` r
+
+published <- read.csv("benchmark-published.csv")
+knitr::kable(published, digits = 4)
+```
+
+| dataset | model                  | accuracy |     sd | source                    |
+|:--------|:-----------------------|---------:|-------:|:--------------------------|
+| 20ng    | TextGCN (transductive) |   0.8643 | 0.0009 | Ding et al. 2020, Table 2 |
+| R8      | TextGCN (transductive) |   0.9707 | 0.0010 | Ding et al. 2020, Table 2 |
+| R52     | TextGCN (transductive) |   0.9356 | 0.0018 | Ding et al. 2020, Table 2 |
+| ohsumed | TextGCN (transductive) |   0.6836 | 0.0056 | Ding et al. 2020, Table 2 |
+| mr      | TextGCN (transductive) |   0.7674 | 0.0020 | Ding et al. 2020, Table 2 |
+| 20ng    | HyperGAT               |   0.8662 | 0.0016 | Ding et al. 2020, Table 2 |
+| R8      | HyperGAT               |   0.9797 | 0.0023 | Ding et al. 2020, Table 2 |
+| R52     | HyperGAT               |   0.9498 | 0.0027 | Ding et al. 2020, Table 2 |
+| ohsumed | HyperGAT               |   0.6990 | 0.0034 | Ding et al. 2020, Table 2 |
+| mr      | HyperGAT               |   0.7832 | 0.0027 | Ding et al. 2020, Table 2 |
+| 20ng    | fastText               |   0.7938 | 0.0030 | Ding et al. 2020, Table 2 |
+| R8      | fastText               |   0.9613 | 0.0021 | Ding et al. 2020, Table 2 |
+| R52     | fastText               |   0.9281 | 0.0009 | Ding et al. 2020, Table 2 |
+| ohsumed | fastText               |   0.5770 | 0.0049 | Ding et al. 2020, Table 2 |
+| mr      | fastText               |   0.7514 | 0.0020 | Ding et al. 2020, Table 2 |
+
+On 20NG the hypergraph classifier (0.8477) is within two points of
+transductive TextGCN (0.8643) and HyperGAT (0.8662), and above fastText
+(0.7938). On MR (0.7684) it edges out published transductive TextGCN
+(0.7674) and trails HyperGAT (0.7832). On R8, R52 and Ohsumed the
+trained models are clearly ahead. The honest summary: a closed-form
+spectral method with zero trained parameters recovers most of the
+accuracy of trained graph neural networks on balanced corpora and is not
+competitive on skewed ones.
+
+## The low-label regime
+
+Label spreading is designed for few labels, so the full-split table
+above is its worst case. Here the training seeds are subsampled
+(stratified, at least one per class, five draws per fraction; the SD
+column is over draws) and both methods receive the same seeds.
+
+``` r
+
+lowlabel <- read.csv("benchmark-lowlabel.csv")
+knitr::kable(lowlabel, digits = 4)
+```
+
+| dataset | fraction | n_seeds | method              | accuracy |     sd | n_draws |
+|:--------|---------:|--------:|:--------------------|---------:|-------:|--------:|
+| R8      |     0.01 |      59 | hypergraph_zhou_cmn |   0.6965 | 0.0375 |       5 |
+| R8      |     0.05 |     278 | hypergraph_zhou_cmn |   0.7523 | 0.0197 |       5 |
+| R8      |     0.10 |     552 | hypergraph_zhou_cmn |   0.7869 | 0.0146 |       5 |
+| R8      |     0.20 |    1101 | hypergraph_zhou_cmn |   0.8090 | 0.0055 |       5 |
+| R8      |     0.01 |      59 | tfidf_centroid      |   0.8917 | 0.0080 |       5 |
+| R8      |     0.05 |     278 | tfidf_centroid      |   0.9222 | 0.0093 |       5 |
+| R8      |     0.10 |     552 | tfidf_centroid      |   0.9218 | 0.0073 |       5 |
+| R8      |     0.20 |    1101 | tfidf_centroid      |   0.9246 | 0.0030 |       5 |
+| mr      |     0.01 |      72 | hypergraph_zhou_cmn |   0.5675 | 0.0099 |       5 |
+| mr      |     0.05 |     356 | hypergraph_zhou_cmn |   0.6280 | 0.0129 |       5 |
+| mr      |     0.10 |     712 | hypergraph_zhou_cmn |   0.6671 | 0.0049 |       5 |
+| mr      |     0.20 |    1422 | hypergraph_zhou_cmn |   0.6984 | 0.0069 |       5 |
+| mr      |     0.01 |      72 | tfidf_centroid      |   0.5541 | 0.0072 |       5 |
+| mr      |     0.05 |     356 | tfidf_centroid      |   0.6201 | 0.0046 |       5 |
+| mr      |     0.10 |     712 | tfidf_centroid      |   0.6522 | 0.0115 |       5 |
+| mr      |     0.20 |    1422 | tfidf_centroid      |   0.6677 | 0.0025 |       5 |
+| ohsumed |     0.01 |      46 | hypergraph_zhou_cmn |   0.1345 | 0.0094 |       5 |
+| ohsumed |     0.05 |     178 | hypergraph_zhou_cmn |   0.2120 | 0.0133 |       5 |
+| ohsumed |     0.10 |     345 | hypergraph_zhou_cmn |   0.2567 | 0.0120 |       5 |
+| ohsumed |     0.20 |     678 | hypergraph_zhou_cmn |   0.3248 | 0.0120 |       5 |
+| ohsumed |     0.01 |      46 | tfidf_centroid      |   0.2422 | 0.0350 |       5 |
+| ohsumed |     0.05 |     178 | tfidf_centroid      |   0.4094 | 0.0242 |       5 |
+| ohsumed |     0.10 |     345 | tfidf_centroid      |   0.4876 | 0.0128 |       5 |
+| ohsumed |     0.20 |     678 | tfidf_centroid      |   0.5463 | 0.0026 |       5 |
+
+On MR the hypergraph classifier leads at every fraction, from 72 seeds
+(0.5675 vs 0.5541) to 1,422 seeds (0.6984 vs 0.6677): with few labels,
+the document–word structure carries information the centroid cannot use.
+On R8 and Ohsumed the centroid stays ahead at every fraction – strong
+tf-idf class signatures survive subsampling better than spreading does.
+Few labels help the case for structure, but they do not overturn the
+class balance effect.
+
+## When to use which
+
+Use `hg_classify(normalization = "class_mass")` when classes are roughly
+balanced or labels are scarce, and always over the raw argmax: the raw
+rule’s majority-class collapse on skewed seeds is total. Use
+`type = "random_walk"` when tf-idf weights should shape the walk itself;
+it was best on Ohsumed here. For skewed many-class corpora with
+plentiful labels, a tf-idf centroid is the stronger, cheaper choice, and
+the trained graph models (TextGCN, HyperGAT) hold the published state of
+the art. The package’s contribution is that the transductive rows above
+run natively in R, in seconds, from two verbs.
+
+## References
+
+Ding, K., Wang, J., Li, J., Li, D., & Liu, H. (2020). Be more with less:
+Hypergraph attention networks for inductive text classification. *EMNLP
+2020*.
+
+Yao, L., Mao, C., & Luo, Y. (2019). Graph convolutional networks for
+text classification. *AAAI 2019*.
+
+Zhou, D., Huang, J., & Scholkopf, B. (2006). Learning with hypergraphs:
+Clustering, classification, and embedding. *NeurIPS 19*.
+
+Zhu, X., Ghahramani, Z., & Lafferty, J. (2003). Semi-supervised learning
+using Gaussian fields and harmonic functions. *ICML 20*.

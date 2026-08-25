@@ -18,7 +18,8 @@ hypergraph_transduction(
   labels,
   xi = 0.99,
   type = c("zhou", "random_walk"),
-  edge_weights = NULL
+  edge_weights = NULL,
+  normalization = c("none", "class_mass")
 )
 ```
 
@@ -46,6 +47,15 @@ hypergraph_transduction(
   Passed to
   [`hypergraph_laplacian()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_laplacian.md).
 
+- normalization:
+
+  Decision rule applied to the score matrix before the argmax. `"none"`
+  (default) is the raw Zhou (2006) rule. `"class_mass"` divides each
+  class column by its total spread mass (class-mass normalization, Zhu
+  et al. 2003) before the argmax; use it when the labeled seeds are
+  class-imbalanced, where the raw rule can collapse every prediction
+  onto the majority class.
+
 ## Value
 
 An object of class `net_hypergraph_transduction`: a list with
@@ -60,6 +70,9 @@ score matrix), `$xi`, `$type`, `$n_labeled` and `$params`. Has `print`,
 
 Zhou, D., Huang, J., & Scholkopf, B. (2006). Learning with hypergraphs:
 Clustering, classification, and embedding. *NeurIPS 19*.
+
+Zhu, X., Ghahramani, Z., & Lafferty, J. (2003). Semi-supervised learning
+using Gaussian fields and harmonic functions. *ICML 20*.
 
 ## Examples
 

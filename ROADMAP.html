@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,8 @@
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/constructions.html">Windowed and embedding hypergraphs</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/benchmarks.html">Benchmarks: R8, R52, MR, Ohsumed, 20NG</a></li>
+    <li><a class="dropdown-item" href="articles/constructions.html">Windowed and embedding hypergraphs</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
@@ -90,6 +91,7 @@
 </ul></div>
 <div class="section level2">
 <h2 id="v05--benchmarks-the-papers-own-yardstick">v0.5 — Benchmarks: the papers’ own yardstick<a class="anchor" aria-label="anchor" href="#v05--benchmarks-the-papers-own-yardstick"></a></h2>
+<p><strong>Status 2026-08-25: SHIPPED.</strong> Harness in <code>benchmarks/</code> (TextGCN corpora/splits — the exact files HyperGAT preprocesses; split sizes match Ding Table 1 on all five datasets, vocab exactly on R8/R52). Results (<code>benchmarks/RESULTS.md</code>, pkgdown article <code>vignettes/articles/</code>): 20NG 0.8477 and MR 0.7684 beat the tf-idf centroid (0.7796 / 0.6851) and fastText (published 0.7938); MR edges published TextGCN-transductive (0.7674); skewed corpora (R8/R52/Ohsumed) go to the centroid — honest both ways. Found + fixed a real method defect: raw Zhou argmax collapses onto the majority class under imbalanced seeds (R8 0.4947 = the majority-class rate) → new <code>normalization = "class_mass"</code> argument (Zhu et al. 2003 CMN) on <code><a href="reference/hg_classify.html">hg_classify()</a></code>/<code><a href="reference/hypergraph_transduction.html">hypergraph_transduction()</a></code>, fixture + invariance + parity + mutation tested. Low-label study (stratified 1-20%, 5 draws): transduction leads the centroid at every fraction on MR only. Version 0.5.0.</p>
 <ul><li>R8 / R52 / MR / Ohsumed / 20NG harness (HyperGAT’s Table 2 datasets); train/test splits as published.</li>
 <li>Zhou/EDVW transduction + tf-idf baselines vs the published accuracy tables; accuracy/F1 with bootstrap CIs; honest reporting either way.</li>
 <li>Results as a pkgdown article; harness reused by v0.6.</li>

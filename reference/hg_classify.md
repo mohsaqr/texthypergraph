@@ -8,7 +8,13 @@ hypergraph structure to classify every node.
 ## Usage
 
 ``` r
-hg_classify(hg, labels, xi = 0.99, type = c("zhou", "random_walk"))
+hg_classify(
+  hg,
+  labels,
+  xi = 0.99,
+  type = c("zhou", "random_walk"),
+  normalization = c("none", "class_mass")
+)
 ```
 
 ## Arguments
@@ -28,6 +34,14 @@ hg_classify(hg, labels, xi = 0.99, type = c("zhou", "random_walk"))
 
   Passed to
   [`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md).
+
+- normalization:
+
+  Decision rule for turning spread scores into predictions: `"none"`
+  (default, the raw Zhou 2006 argmax) or `"class_mass"` (class-mass
+  normalization, Zhu et al. 2003). Use `"class_mass"` when the labeled
+  seeds are class-imbalanced – the raw rule can collapse every
+  prediction onto the majority class.
 
 ## Value
 
