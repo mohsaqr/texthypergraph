@@ -17,11 +17,16 @@
 
 \item{row.names, optional}{Ignored; present for S3 consistency.}
 
-\item{what}{Which table: \code{"weights"} (default; one row per document-word
-pair with \code{doc}, \code{word}, \code{n}, \code{weight}), \code{"documents"} (one row per
-document with \code{doc}, \code{n_tokens}, \code{n_types} plus any metadata columns
-carried from the input), or \code{"vocabulary"} (one row per word with
-\code{word}, \code{n}, \code{doc_freq}, and \code{idf} under tf-idf weighting).}
+\item{what}{Which table: \code{"weights"} (default) -- for the bag construction
+one row per document-word pair (\code{doc}, \code{word}, \code{n}, \code{weight}); for the
+window construction one row per window-content/word membership
+(\code{edge}, \code{word}, \code{weight} = window count); for the knn construction one
+row per hyperedge membership (\code{doc}, \code{edge}, \code{weight} = cosine
+similarity). \code{"documents"} gives one row per document (with
+\code{n_tokens}/\code{n_types} for token-based constructions, plus any metadata
+columns carried from the input). \code{"vocabulary"} gives one row per word
+(\code{word}, \code{n}, \code{doc_freq}, and \code{idf} under tf-idf weighting; empty for
+the knn construction, which has no token layer).}
 
 \item{...}{Unused.}
 }

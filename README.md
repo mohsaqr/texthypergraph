@@ -75,9 +75,18 @@ vignette does with `c(stop_words_en(), "study", ...)`.)
 | `hg_centrality()` | clique-expansion + tensor Z/H eigenvector centralities, with `sort_by`/`n` | `Nestimate::hypergraph_centrality()` |
 | `hg_measures()` | tidy structural tables: nodes, edges, overlaps, summary | `Nestimate::hypergraph_measures()` |
 
-`as.data.frame()` on a text hypergraph returns the tidy document–word weight
-table; `what = "documents"` and `what = "vocabulary"` return the other two
-corpus tables.
+Two further constructions use word order and embedding space
+(`vignette("constructions")`): `construction = "window"` makes every token
+window a hyperedge (the HyperGAT sequential construction, weighted; its
+w = 2 off-diagonal counts provably match `Nestimate::wtna()`), and
+`construction = "knn"` builds each document's k-nearest-neighbor hyperedge
+from sbert embeddings — the bundled `covid_embeddings` matrix keeps it
+offline, and `knn_hypergraph(embeddings, k)` takes any embedding matrix
+directly (binary support verified against `HyperG::knn_hypergraph`).
+
+`as.data.frame()` on a text hypergraph returns the tidy weight table;
+`what = "documents"` and `what = "vocabulary"` return the other two corpus
+tables.
 
 The full worked analysis — clustering, a `k` sensitivity check, few-label
 classification and its honest limits — is the package vignette:
@@ -102,9 +111,9 @@ Nestimate::bipartite_groups(tidytext::tidy(my_dfm),
 The package grew out of a literature survey of hypergraph text/NLP methods;
 the `papers/` folder, per-repo notes in `repos/` (each naming its role as
 equivalence oracle or reference — see `repos/README.md`), and `TODO.md`
-remain in-tree as the research base. `ROADMAP.md` is the release plan:
-windowed HyperGAT-style hyperedges and sbert-powered kNN embedding
-hypergraphs land in v0.2.
+remain in-tree as the research base. `ROADMAP.md` is the release plan;
+v0.2 delivered the windowed and kNN constructions, v0.3 brings the theory
+completions (edge-dependent random-walk centrality, wasserstein, samplers).
 
 ## References
 

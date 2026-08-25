@@ -8,11 +8,17 @@ text_hypergraph(
   x,
   column = NULL,
   id = NULL,
+  construction = c("bag", "window", "knn"),
   nodes = c("doc", "word"),
   weight = c("n", "tfidf"),
   stop_words = NULL,
   min_count = 1L,
-  lowercase = TRUE
+  lowercase = TRUE,
+  window = 3L,
+  window_mode = c("sliding", "tumbling"),
+  k = 10L,
+  embeddings = NULL,
+  model = NULL
 )
 }
 \arguments{
@@ -22,23 +28,46 @@ text column.}
 \item{column}{Name of the text column when \code{x} is a \code{data.frame}.}
 
 \item{id}{Optional name of an ID column when \code{x} is a \code{data.frame}; its
-values (unique, non-missing) become the document identifiers. Defaults to
-the names of \code{x} when it is a named character vector, otherwise
+values (unique, non-missing) become the document identifiers. Defaults
+to the names of \code{x} when it is a named character vector, otherwise
 \code{"doc_1"}, \code{"doc_2"}, ...}
 
-\item{nodes}{Which entity is the vertex set: \code{"doc"} (default) or
-\code{"word"}.}
+\item{construction}{\code{"bag"} (default), \code{"window"}, or \code{"knn"} -- see
+Details.}
 
-\item{weight}{Term weighting: \code{"n"} (raw count, default) or \code{"tfidf"}
-(smoothed tf-idf, see Details).}
+\item{nodes}{Which entity is the vertex set for the bag construction:
+\code{"doc"} (default) or \code{"word"}. Ignored by \code{"window"} (vertices are
+words) and \code{"knn"} (vertices are documents).}
+
+\item{weight}{Term weighting for the bag construction: \code{"n"} (raw count,
+default) or \code{"tfidf"}. The window construction always weights by
+window counts; the knn construction by cosine similarity.}
 
 \item{stop_words}{Optional character vector of words to drop after
-tokenization (compared after lowercasing when \code{lowercase = TRUE}).}
+tokenization (compared after lowercasing when \code{lowercase = TRUE}); see
+\code{\link[=stop_words_en]{stop_words_en()}}. Not applicable to \code{"knn"}.}
 
 \item{min_count}{Minimum total corpus count for a word to be kept
-(default \code{1L}, keep everything).}
+(default \code{1L}, keep everything). Not applicable to \code{"knn"}.}
 
 \item{lowercase}{Lowercase the text before tokenization (default \code{TRUE}).}
+
+\item{window}{Window size in tokens for \code{construction = "window"}
+(default \code{3L}).}
+
+\item{window_mode}{\code{"sliding"} (default) or \code{"tumbling"}, for
+\code{construction = "window"}.}
+
+\item{k}{Number of nearest neighbors per hyperedge for
+\code{construction = "knn"} (default \code{10L}).}
+
+\item{embeddings}{Numeric matrix of document embeddings for
+\code{construction = "knn"}: one row per document, either rownames matching
+the document IDs or rows in document order. \code{NULL} (default) encodes
+the text with \code{sbert}.}
+
+\item{model}{Passed to \code{sbert::encode()} when embeddings are computed
+(\code{NULL} = sbert's default model).}
 }
 \value{
 An object of class \code{c("text_hypergraph", "net_hypergraph")} -- a
@@ -46,32 +75,60 @@ An object of class \code{c("text_hypergraph", "net_hypergraph")} -- a
 hypergraph verb and by \code{\link[=hg_measures]{hg_measures()}}, \code{\link[=hg_centrality]{hg_centrality()}},
 \code{\link[=hg_cluster]{hg_cluster()}}, and \code{\link[=hg_classify]{hg_classify()}} -- with a \code{text} field recording the
 corpus tables. Use \code{\link[=as.data.frame.text_hypergraph]{as.data.frame.text_hypergraph()}} for the tidy
-document-word weight table, and its \code{what} argument for the document and
-vocabulary tables.
+weight table, and its \code{what} argument for the document and vocabulary
+tables.
 }
 \description{
-Tokenizes a corpus (base R, deterministic), counts document-word
-occurrences, and builds a weighted hypergraph through
-\code{\link[Nestimate:bipartite_groups]{Nestimate::bipartite_groups()}}. With \code{nodes = "doc"} (the default),
-documents are the vertices and each word is a hyperedge connecting the
-documents it occurs in -- the orientation used for document clustering and
-transductive document classification (Hayashi et al. 2020). With
-\code{nodes = "word"}, words are the vertices and each document is a hyperedge
-(the HyperGAT orientation).
+Tokenizes a corpus (base R, deterministic) and builds a weighted
+hypergraph through the \code{Nestimate} engines, in one of three
+constructions:
 }
 \details{
-Tokens are maximal runs of letters (with internal apostrophes); digits and
-punctuation are separators. \code{weight = "tfidf"} uses the smoothed formula
-\code{tf * (log((1 + N) / (1 + df)) + 1)} with \code{tf} the raw count, \code{N} the
-number of documents, and \code{df} the word's document frequency -- the
-\code{smooth_idf} variant of Manning, Raghavan and Schutze (2008) as popularized
-by scikit-learn, which is never zero and so never silently disconnects a
-vertex.
+\itemize{
+\item \code{construction = "bag"} (default): the document-word incidence. With
+\code{nodes = "doc"}, documents are vertices and each word is a hyperedge
+over the documents containing it (the orientation for document
+clustering and transductive classification, Hayashi et al. 2020); with
+\code{nodes = "word"} the orientation reverses (the HyperGAT
+sentence-as-hyperedge setup generalized to whole documents).
+\item \code{construction = "window"}: words are vertices and every token window is
+a hyperedge -- the sliding-window sequential construction of Ding et al.
+(2020, Sec. 3.2), extended with weights: each hyperedge is a distinct
+window content (the sorted set of words co-occurring in a window) and
+its incidence weight is the number of windows with that content.
+Windows never cross document boundaries. \code{window_mode = "sliding"}
+moves one token at a time (a document shorter than \code{window} forms one
+whole-document window); \code{"tumbling"} uses consecutive chunks, trailing
+partial chunk included. With \code{window = 2}, the off-diagonal pairwise
+co-occurrence counts implied by the hypergraph equal
+\code{Nestimate::wtna(method = "cooccurrence")} exactly (tested); the
+diagonals differ by design, since \code{wtna()} counts within-window
+repeats while a set-valued hyperedge collapses them.
+\item \code{construction = "knn"}: documents are vertices and each document plus
+its \code{k} nearest neighbors in an embedding space is one hyperedge,
+weighted by cosine similarity (see \code{\link[=knn_hypergraph]{knn_hypergraph()}}). Pass a
+precomputed \code{embeddings} matrix, or leave it \code{NULL} to encode the text
+with the \code{sbert} package (if installed; models download only on
+explicit user confirmation, per sbert's policy).
+}
+
+Tokens are maximal runs of letters (with internal apostrophes); digits
+and punctuation are separators. \code{weight = "tfidf"} (bag construction
+only) uses the smoothed formula \code{tf * (log((1 + N) / (1 + df)) + 1)} with
+\code{tf} the raw count, \code{N} the number of documents, and \code{df} the word's
+document frequency -- the \code{smooth_idf} variant of Manning, Raghavan and
+Schutze (2008) as popularized by scikit-learn, which is never zero and so
+never silently disconnects a vertex. \code{stop_words} and \code{min_count}
+filtering happen before windowing, so removing a token closes the gap it
+leaves in the sequence.
 }
 \section{Conditions}{
- Raises \code{thg_bad_input} (broken argument contract),
-\code{thg_empty_corpus} (no document survives tokenization and filtering), and
-warns with \code{thg_dropped_documents} when some documents end up empty.
+ Raises \code{thg_bad_input} (broken argument contract,
+including bag-only arguments passed to other constructions),
+\code{thg_empty_corpus} (no document survives tokenization and filtering),
+\code{thg_missing_embeddings} (\code{construction = "knn"} with neither
+\code{embeddings} nor the sbert package), and warns with
+\code{thg_dropped_documents} when some documents end up empty.
 }
 
 \examples{
@@ -84,9 +141,21 @@ corpus <- c(
 hg <- text_hypergraph(corpus, weight = "tfidf")
 hg
 as.data.frame(hg)
-as.data.frame(hg, what = "vocabulary")
+
+win <- text_hypergraph(corpus, construction = "window", window = 3)
+win
+
+# knn from precomputed embeddings (sbert-free, offline)
+emb <- matrix(c(1, 0,  0.9, 0.1,  0, 1,  0.1, 0.9),
+              nrow = 4, byrow = TRUE,
+              dimnames = list(names(corpus), NULL))
+text_hypergraph(corpus, construction = "knn", k = 1, embeddings = emb)
 }
 \references{
+Ding, K., Wang, J., Li, J., Li, D., & Liu, H. (2020). Be more with less:
+Hypergraph attention networks for inductive text classification.
+\emph{EMNLP 2020}. \doi{10.18653/v1/2020.emnlp-main.399}
+
 Hayashi, K., Aksoy, S. G., Park, C. H., & Park, H. (2020). Hypergraph
 random walks, Laplacians, and clustering. \emph{CIKM 2020}.
 \doi{10.1145/3340531.3412034}

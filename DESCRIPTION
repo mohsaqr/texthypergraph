@@ -1,7 +1,7 @@
 Package: texthypergraph
 Type: Package
 Title: Hypergraph Text Analysis
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(
     person(
       given = "Mohammed",
@@ -35,6 +35,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
+    sbert,
     testthat (>= 3.0.0)
 Additional_repositories: https://mohsaqr.r-universe.dev
 VignetteBuilder: knitr

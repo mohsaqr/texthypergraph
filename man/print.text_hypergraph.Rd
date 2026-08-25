@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{\link[=text_hypergraph]{text_hypergraph()}} object.}
 
-\item{...}{Passed to the underlying \code{net_hypergraph} print method.}
+\item{...}{Unused.}
 }
 \value{
 \code{x}, invisibly.

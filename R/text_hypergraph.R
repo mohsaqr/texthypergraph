@@ -1,14 +1,18 @@
-# Constructor: corpus -> weighted document-word hypergraph.
+# Constructor: corpus -> weighted text hypergraph, in three constructions.
 #
-# The bipartite document-word structure becomes a hypergraph in either
-# orientation (Hayashi et al. 2020 analyze documents as vertices with words as
-# hyperedges; HyperGAT-style construction uses the reverse). All spectral and
-# structural machinery is delegated to Nestimate; this file owns tokenization,
-# weighting, and the tidy text-facing surface.
+# "bag": the bipartite document-word incidence (Hayashi et al. 2020 analyze
+# documents as vertices with words as hyperedges; HyperGAT-style uses the
+# reverse orientation). "window": sliding/tumbling token windows as
+# hyperedges over words (the HyperGAT Sec. 3.2 sequential construction, our
+# weighted extension). "knn": documents plus their k nearest embedding
+# neighbors as hyperedges (the tier-3 -> tier-2 bridge, via knn_hypergraph()).
+# All spectral and structural machinery is delegated to Nestimate; this file
+# owns tokenization, weighting, and the tidy text-facing surface.
 
 # Tokenize a character vector into a list of word vectors: lowercase
-# (optionally), normalize curly apostrophes (U+2019, written escaped for ASCII-clean source) so possessives stay one
-# token, split on non-letter runs, trim edge apostrophes, drop empties.
+# (optionally), normalize curly apostrophes (U+2019, written escaped so the
+# source stays ASCII) so possessives stay one token, split on non-letter
+# runs, trim edge apostrophes, drop empties.
 .thg_tokenize <- function(text, lowercase) {
   if (isTRUE(lowercase)) {
     text <- tolower(text)
@@ -21,55 +25,119 @@
   })
 }
 
+# Window one token sequence: sliding (step 1, full windows; a sequence
+# shorter than the window is one whole-sequence window) or tumbling
+# (consecutive chunks of `window`, trailing partial chunk included -- the
+# convention of Nestimate::wtna()). Each window becomes its sorted set of
+# distinct words.
+.thg_window_sets <- function(toks, window, mode) {
+  n <- length(toks)
+  wins <- if (identical(mode, "tumbling")) {
+    unname(split(toks, ceiling(seq_along(toks) / window)))
+  } else if (n <= window) {
+    list(toks)
+  } else {
+    lapply(seq_len(n - window + 1L), \(i) toks[seq.int(i, length.out = window)])
+  }
+  lapply(wins, \(win) sort(unique(win)))
+}
+
 #' Build a weighted hypergraph from a text corpus
 #'
-#' Tokenizes a corpus (base R, deterministic), counts document-word
-#' occurrences, and builds a weighted hypergraph through
-#' [Nestimate::bipartite_groups()]. With `nodes = "doc"` (the default),
-#' documents are the vertices and each word is a hyperedge connecting the
-#' documents it occurs in -- the orientation used for document clustering and
-#' transductive document classification (Hayashi et al. 2020). With
-#' `nodes = "word"`, words are the vertices and each document is a hyperedge
-#' (the HyperGAT orientation).
+#' Tokenizes a corpus (base R, deterministic) and builds a weighted
+#' hypergraph through the `Nestimate` engines, in one of three
+#' constructions:
 #'
-#' Tokens are maximal runs of letters (with internal apostrophes); digits and
-#' punctuation are separators. `weight = "tfidf"` uses the smoothed formula
-#' `tf * (log((1 + N) / (1 + df)) + 1)` with `tf` the raw count, `N` the
-#' number of documents, and `df` the word's document frequency -- the
-#' `smooth_idf` variant of Manning, Raghavan and Schutze (2008) as popularized
-#' by scikit-learn, which is never zero and so never silently disconnects a
-#' vertex.
+#' * `construction = "bag"` (default): the document-word incidence. With
+#'   `nodes = "doc"`, documents are vertices and each word is a hyperedge
+#'   over the documents containing it (the orientation for document
+#'   clustering and transductive classification, Hayashi et al. 2020); with
+#'   `nodes = "word"` the orientation reverses (the HyperGAT
+#'   sentence-as-hyperedge setup generalized to whole documents).
+#' * `construction = "window"`: words are vertices and every token window is
+#'   a hyperedge -- the sliding-window sequential construction of Ding et al.
+#'   (2020, Sec. 3.2), extended with weights: each hyperedge is a distinct
+#'   window content (the sorted set of words co-occurring in a window) and
+#'   its incidence weight is the number of windows with that content.
+#'   Windows never cross document boundaries. `window_mode = "sliding"`
+#'   moves one token at a time (a document shorter than `window` forms one
+#'   whole-document window); `"tumbling"` uses consecutive chunks, trailing
+#'   partial chunk included. With `window = 2`, the off-diagonal pairwise
+#'   co-occurrence counts implied by the hypergraph equal
+#'   `Nestimate::wtna(method = "cooccurrence")` exactly (tested); the
+#'   diagonals differ by design, since `wtna()` counts within-window
+#'   repeats while a set-valued hyperedge collapses them.
+#' * `construction = "knn"`: documents are vertices and each document plus
+#'   its `k` nearest neighbors in an embedding space is one hyperedge,
+#'   weighted by cosine similarity (see [knn_hypergraph()]). Pass a
+#'   precomputed `embeddings` matrix, or leave it `NULL` to encode the text
+#'   with the `sbert` package (if installed; models download only on
+#'   explicit user confirmation, per sbert's policy).
+#'
+#' Tokens are maximal runs of letters (with internal apostrophes); digits
+#' and punctuation are separators. `weight = "tfidf"` (bag construction
+#' only) uses the smoothed formula `tf * (log((1 + N) / (1 + df)) + 1)` with
+#' `tf` the raw count, `N` the number of documents, and `df` the word's
+#' document frequency -- the `smooth_idf` variant of Manning, Raghavan and
+#' Schutze (2008) as popularized by scikit-learn, which is never zero and so
+#' never silently disconnects a vertex. `stop_words` and `min_count`
+#' filtering happen before windowing, so removing a token closes the gap it
+#' leaves in the sequence.
 #'
 #' @param x A character vector of documents, or a `data.frame` containing a
 #'   text column.
 #' @param column Name of the text column when `x` is a `data.frame`.
 #' @param id Optional name of an ID column when `x` is a `data.frame`; its
-#'   values (unique, non-missing) become the document identifiers. Defaults to
-#'   the names of `x` when it is a named character vector, otherwise
+#'   values (unique, non-missing) become the document identifiers. Defaults
+#'   to the names of `x` when it is a named character vector, otherwise
 #'   `"doc_1"`, `"doc_2"`, ...
-#' @param nodes Which entity is the vertex set: `"doc"` (default) or
-#'   `"word"`.
-#' @param weight Term weighting: `"n"` (raw count, default) or `"tfidf"`
-#'   (smoothed tf-idf, see Details).
+#' @param construction `"bag"` (default), `"window"`, or `"knn"` -- see
+#'   Details.
+#' @param nodes Which entity is the vertex set for the bag construction:
+#'   `"doc"` (default) or `"word"`. Ignored by `"window"` (vertices are
+#'   words) and `"knn"` (vertices are documents).
+#' @param weight Term weighting for the bag construction: `"n"` (raw count,
+#'   default) or `"tfidf"`. The window construction always weights by
+#'   window counts; the knn construction by cosine similarity.
 #' @param stop_words Optional character vector of words to drop after
-#'   tokenization (compared after lowercasing when `lowercase = TRUE`).
+#'   tokenization (compared after lowercasing when `lowercase = TRUE`); see
+#'   [stop_words_en()]. Not applicable to `"knn"`.
 #' @param min_count Minimum total corpus count for a word to be kept
-#'   (default `1L`, keep everything).
+#'   (default `1L`, keep everything). Not applicable to `"knn"`.
 #' @param lowercase Lowercase the text before tokenization (default `TRUE`).
+#' @param window Window size in tokens for `construction = "window"`
+#'   (default `3L`).
+#' @param window_mode `"sliding"` (default) or `"tumbling"`, for
+#'   `construction = "window"`.
+#' @param k Number of nearest neighbors per hyperedge for
+#'   `construction = "knn"` (default `10L`).
+#' @param embeddings Numeric matrix of document embeddings for
+#'   `construction = "knn"`: one row per document, either rownames matching
+#'   the document IDs or rows in document order. `NULL` (default) encodes
+#'   the text with `sbert`.
+#' @param model Passed to `sbert::encode()` when embeddings are computed
+#'   (`NULL` = sbert's default model).
 #'
 #' @return An object of class `c("text_hypergraph", "net_hypergraph")` -- a
 #'   [Nestimate::bipartite_groups()] hypergraph accepted by every Nestimate
 #'   hypergraph verb and by [hg_measures()], [hg_centrality()],
 #'   [hg_cluster()], and [hg_classify()] -- with a `text` field recording the
 #'   corpus tables. Use [as.data.frame.text_hypergraph()] for the tidy
-#'   document-word weight table, and its `what` argument for the document and
-#'   vocabulary tables.
+#'   weight table, and its `what` argument for the document and vocabulary
+#'   tables.
 #'
-#' @section Conditions: Raises `thg_bad_input` (broken argument contract),
-#'   `thg_empty_corpus` (no document survives tokenization and filtering), and
-#'   warns with `thg_dropped_documents` when some documents end up empty.
+#' @section Conditions: Raises `thg_bad_input` (broken argument contract,
+#'   including bag-only arguments passed to other constructions),
+#'   `thg_empty_corpus` (no document survives tokenization and filtering),
+#'   `thg_missing_embeddings` (`construction = "knn"` with neither
+#'   `embeddings` nor the sbert package), and warns with
+#'   `thg_dropped_documents` when some documents end up empty.
 #'
 #' @references
+#' Ding, K., Wang, J., Li, J., Li, D., & Liu, H. (2020). Be more with less:
+#' Hypergraph attention networks for inductive text classification.
+#' *EMNLP 2020*. \doi{10.18653/v1/2020.emnlp-main.399}
+#'
 #' Hayashi, K., Aksoy, S. G., Park, C. H., & Park, H. (2020). Hypergraph
 #' random walks, Laplacians, and clustering. *CIKM 2020*.
 #' \doi{10.1145/3340531.3412034}
@@ -87,16 +155,32 @@
 #' hg <- text_hypergraph(corpus, weight = "tfidf")
 #' hg
 #' as.data.frame(hg)
-#' as.data.frame(hg, what = "vocabulary")
+#'
+#' win <- text_hypergraph(corpus, construction = "window", window = 3)
+#' win
+#'
+#' # knn from precomputed embeddings (sbert-free, offline)
+#' emb <- matrix(c(1, 0,  0.9, 0.1,  0, 1,  0.1, 0.9),
+#'               nrow = 4, byrow = TRUE,
+#'               dimnames = list(names(corpus), NULL))
+#' text_hypergraph(corpus, construction = "knn", k = 1, embeddings = emb)
 #' @export
 text_hypergraph <- function(x, column = NULL, id = NULL,
+                            construction = c("bag", "window", "knn"),
                             nodes = c("doc", "word"),
                             weight = c("n", "tfidf"),
                             stop_words = NULL,
                             min_count = 1L,
-                            lowercase = TRUE) {
+                            lowercase = TRUE,
+                            window = 3L,
+                            window_mode = c("sliding", "tumbling"),
+                            k = 10L,
+                            embeddings = NULL,
+                            model = NULL) {
+  construction <- match.arg(construction)
   nodes <- match.arg(nodes)
   weight <- match.arg(weight)
+  window_mode <- match.arg(window_mode)
   stopifnot(
     "`x` must be a character vector or a data.frame" =
       is.character(x) || is.data.frame(x),
@@ -105,7 +189,9 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
     "`min_count` must be a single count >= 1" =
       length(min_count) == 1L && is.finite(min_count) && min_count >= 1,
     "`lowercase` must be TRUE or FALSE" =
-      isTRUE(lowercase) || isFALSE(lowercase)
+      isTRUE(lowercase) || isFALSE(lowercase),
+    "`window` must be a single count >= 2" =
+      length(window) == 1L && is.finite(window) && window >= 2
   )
 
   if (is.data.frame(x)) {
@@ -148,6 +234,12 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
   }
   text[is.na(text)] <- ""
 
+  if (identical(construction, "knn")) {
+    return(.thg_knn_text(text, doc_id, meta, k = k, embeddings = embeddings,
+                         model = model, stop_words = stop_words,
+                         min_count = min_count, weight = weight))
+  }
+
   tokens <- .thg_tokenize(text, lowercase = lowercase)
   if (!is.null(stop_words)) {
     tokens <- lapply(tokens, \(x) x[!x %in% stop_words])
@@ -177,6 +269,7 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
         class = "thg_empty_corpus", call = NULL
       ))
     }
+    tokens <- lapply(tokens, \(t) t[t %in% keep])
   }
 
   kept_docs <- doc_id[doc_id %in% counts$doc]
@@ -201,21 +294,55 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
   vocabulary <- vocabulary[order(vocabulary$word), , drop = FALSE]
   rownames(vocabulary) <- NULL
 
-  if (identical(weight, "tfidf")) {
-    idf <- log((1 + n_docs) / (1 + doc_freq)) + 1
-    vocabulary$idf <- as.numeric(idf[vocabulary$word])
-    counts$w <- counts$n * as.numeric(idf[counts$word])
+  n_windows <- NULL
+  if (identical(construction, "window")) {
+    if (identical(weight, "tfidf")) {
+      stop(errorCondition(
+        "`weight = \"tfidf\"` applies to the bag construction only; windowed hyperedges are weighted by window counts",
+        class = "thg_bad_input", call = NULL
+      ))
+    }
+    doc_tokens <- tokens[lengths(tokens) > 0L]
+    sets <- unlist(lapply(doc_tokens, .thg_window_sets, window = window,
+                          mode = window_mode),
+                   recursive = FALSE)
+    n_windows <- length(sets)
+    keys <- vapply(sets, paste, character(1), collapse = "+")
+    win_long <- data.frame(
+      edge = rep(keys, lengths(sets)),
+      word = unlist(sets, use.names = FALSE),
+      n = 1L
+    )
+    win_counts <- stats::aggregate(n ~ edge + word, data = win_long,
+                                   FUN = sum)
+    win_counts$w <- as.numeric(win_counts$n)
+    hg <- Nestimate::bipartite_groups(win_counts, player = "word",
+                                      group = "edge", weight = "w")
+    weights <- data.frame(edge = win_counts$edge, word = win_counts$word,
+                          weight = win_counts$w)
+    weights <- weights[order(weights$edge, weights$word), , drop = FALSE]
+    rownames(weights) <- NULL
+    nodes <- "word"
   } else {
-    counts$w <- as.numeric(counts$n)
-  }
-  stopifnot("internal: non-positive weights produced" = all(counts$w > 0))
-
-  hg <- if (identical(nodes, "doc")) {
-    Nestimate::bipartite_groups(counts, player = "doc", group = "word",
-                                weight = "w")
-  } else {
-    Nestimate::bipartite_groups(counts, player = "word", group = "doc",
-                                weight = "w")
+    if (identical(weight, "tfidf")) {
+      idf <- log((1 + n_docs) / (1 + doc_freq)) + 1
+      vocabulary$idf <- as.numeric(idf[vocabulary$word])
+      counts$w <- counts$n * as.numeric(idf[counts$word])
+    } else {
+      counts$w <- as.numeric(counts$n)
+    }
+    stopifnot("internal: non-positive weights produced" = all(counts$w > 0))
+    hg <- if (identical(nodes, "doc")) {
+      Nestimate::bipartite_groups(counts, player = "doc", group = "word",
+                                  weight = "w")
+    } else {
+      Nestimate::bipartite_groups(counts, player = "word", group = "doc",
+                                  weight = "w")
+    }
+    weights <- data.frame(doc = counts$doc, word = counts$word,
+                          n = counts$n, weight = counts$w)
+    weights <- weights[order(weights$doc, weights$word), , drop = FALSE]
+    rownames(weights) <- NULL
   }
 
   n_tokens <- tapply(counts$n, counts$doc, sum)
@@ -232,18 +359,96 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
   }
   rownames(documents) <- NULL
 
-  weights <- data.frame(doc = counts$doc, word = counts$word,
-                        n = counts$n, weight = counts$w)
-  weights <- weights[order(weights$doc, weights$word), , drop = FALSE]
-  rownames(weights) <- NULL
-
   hg$text <- list(
     documents = documents,
     vocabulary = vocabulary,
     weights = weights,
+    construction = construction,
     nodes = nodes,
-    weighting = weight,
+    weighting = if (identical(construction, "window")) "window_count" else weight,
+    window = if (identical(construction, "window")) as.integer(window) else NULL,
+    window_mode = if (identical(construction, "window")) window_mode else NULL,
+    n_windows = n_windows,
     n_dropped = length(dropped)
+  )
+  class(hg) <- c("text_hypergraph", class(hg))
+  hg
+}
+
+# The knn construction: documents as vertices, each document plus its k
+# nearest embedding neighbors as one cosine-weighted hyperedge.
+.thg_knn_text <- function(text, doc_id, meta, k, embeddings, model,
+                          stop_words, min_count, weight) {
+  if (!is.null(stop_words) || min_count > 1L || identical(weight, "tfidf")) {
+    stop(errorCondition(
+      "`stop_words`, `min_count`, and `weight` apply to token-based constructions, not construction = \"knn\"",
+      class = "thg_bad_input", call = NULL
+    ))
+  }
+  if (is.null(embeddings)) {
+    if (!requireNamespace("sbert", quietly = TRUE)) {
+      stop(errorCondition(
+        "construction = \"knn\" needs an `embeddings` matrix, or the sbert package installed to compute one",
+        class = "thg_missing_embeddings", call = NULL
+      ))
+    }
+    embeddings <- sbert::encode(text, model = model)
+    rownames(embeddings) <- doc_id
+  } else {
+    stopifnot(
+      "`embeddings` must be a numeric matrix" =
+        is.matrix(embeddings) && is.numeric(embeddings)
+    )
+    if (is.null(rownames(embeddings))) {
+      if (nrow(embeddings) != length(doc_id)) {
+        stop(errorCondition(
+          sprintf(
+            "`embeddings` has %d rows but the corpus has %d documents",
+            nrow(embeddings), length(doc_id)
+          ),
+          class = "thg_bad_input", call = NULL
+        ))
+      }
+      rownames(embeddings) <- doc_id
+    } else {
+      if (!setequal(rownames(embeddings), doc_id)) {
+        stop(errorCondition(
+          "rownames of `embeddings` must match the document IDs",
+          class = "thg_bad_input", call = NULL
+        ))
+      }
+      embeddings <- embeddings[doc_id, , drop = FALSE]
+    }
+  }
+
+  hg <- knn_hypergraph(embeddings, k = k, weight = "cosine")
+
+  documents <- data.frame(doc = doc_id)
+  if (!is.null(meta) && ncol(meta) > 0L) {
+    meta_reset <- meta
+    rownames(meta_reset) <- NULL
+    documents <- cbind(documents, meta_reset)
+  }
+
+  nz <- which(hg$incidence != 0, arr.ind = TRUE)
+  weights <- data.frame(
+    doc = rownames(hg$incidence)[nz[, "row"]],
+    edge = colnames(hg$incidence)[nz[, "col"]],
+    weight = as.numeric(hg$incidence[nz])
+  )
+  weights <- weights[order(weights$edge, weights$doc), , drop = FALSE]
+  rownames(weights) <- NULL
+
+  hg$text <- list(
+    documents = documents,
+    vocabulary = data.frame(word = character(0), n = integer(0),
+                            doc_freq = integer(0)),
+    weights = weights,
+    construction = "knn",
+    nodes = "doc",
+    weighting = "cosine",
+    k = as.integer(k),
+    n_dropped = 0L
   )
   class(hg) <- c("text_hypergraph", class(hg))
   hg
@@ -252,22 +457,38 @@ text_hypergraph <- function(x, column = NULL, id = NULL,
 #' Print a text hypergraph
 #'
 #' @param x A [text_hypergraph()] object.
-#' @param ... Passed to the underlying `net_hypergraph` print method.
+#' @param ... Unused.
 #' @return `x`, invisibly.
 #' @export
 print.text_hypergraph <- function(x, ...) {
-  cat(sprintf(
-    "Text hypergraph: %d documents, %d words (%s as nodes, weight = %s)\n",
-    nrow(x$text$documents), nrow(x$text$vocabulary),
-    if (identical(x$text$nodes, "doc")) "documents" else "words",
-    x$text$weighting
-  ))
+  head_line <- switch(x$text$construction,
+    bag = sprintf(
+      "Text hypergraph: %d documents, %d words (%s as nodes, weight = %s)",
+      nrow(x$text$documents), nrow(x$text$vocabulary),
+      if (identical(x$text$nodes, "doc")) "documents" else "words",
+      x$text$weighting
+    ),
+    window = sprintf(
+      "Text hypergraph: %d documents, %d words (windowed hyperedges: w = %d, %s, %d windows)",
+      nrow(x$text$documents), nrow(x$text$vocabulary),
+      x$text$window, x$text$window_mode, x$text$n_windows
+    ),
+    knn = sprintf(
+      "Text hypergraph: %d documents (kNN embedding hyperedges: k = %d, cosine)",
+      nrow(x$text$documents), x$text$k
+    )
+  )
+  cat(head_line, "\n", sep = "")
   size <- as.integer(sub("size_", "", names(x$size_distribution)))
   sizes <- rep(size, x$size_distribution)
   cat(sprintf(
     "Hyperedges: %d (%s); sizes %d-%d, median %g\n",
     x$n_hyperedges,
-    if (identical(x$text$nodes, "doc")) "words" else "documents",
+    switch(x$text$construction,
+      bag = if (identical(x$text$nodes, "doc")) "words" else "documents",
+      window = "distinct windows",
+      knn = "kNN neighborhoods"
+    ),
     min(sizes), max(sizes), stats::median(sizes)
   ))
   invisible(x)
@@ -277,11 +498,16 @@ print.text_hypergraph <- function(x, ...) {
 #'
 #' @param x A [text_hypergraph()] object.
 #' @param row.names,optional Ignored; present for S3 consistency.
-#' @param what Which table: `"weights"` (default; one row per document-word
-#'   pair with `doc`, `word`, `n`, `weight`), `"documents"` (one row per
-#'   document with `doc`, `n_tokens`, `n_types` plus any metadata columns
-#'   carried from the input), or `"vocabulary"` (one row per word with
-#'   `word`, `n`, `doc_freq`, and `idf` under tf-idf weighting).
+#' @param what Which table: `"weights"` (default) -- for the bag construction
+#'   one row per document-word pair (`doc`, `word`, `n`, `weight`); for the
+#'   window construction one row per window-content/word membership
+#'   (`edge`, `word`, `weight` = window count); for the knn construction one
+#'   row per hyperedge membership (`doc`, `edge`, `weight` = cosine
+#'   similarity). `"documents"` gives one row per document (with
+#'   `n_tokens`/`n_types` for token-based constructions, plus any metadata
+#'   columns carried from the input). `"vocabulary"` gives one row per word
+#'   (`word`, `n`, `doc_freq`, and `idf` under tf-idf weighting; empty for
+#'   the knn construction, which has no token layer).
 #' @param ... Unused.
 #' @return A base `data.frame` as described under `what`.
 #' @examples

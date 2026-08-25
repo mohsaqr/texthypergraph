@@ -55,6 +55,18 @@ NOTE.
 
 ## v0.2 — Text-native constructions
 
+**Status 2026-08-25: v0.2 COMPLETE.** Both constructions shipped:
+`text_hypergraph(construction = "window")` (sliding/tumbling, set-valued
+window hyperedges; w = 2 off-diagonal parity with `Nestimate::wtna()`
+shipped as a package test — diagonals differ by design, wtna counts
+within-window repeats) and `construction = "knn"` + `knn_hypergraph()`
+(cosine-weighted, deterministic tie-breaks, classed refusal of non-positive
+similarities; binary support verified identical to `HyperG::knn_hypergraph`
+in local_testing_and_equivalence/). `covid_embeddings` bundled (sbert
+all-MiniLM-L6-v2, 165x384). `vignette("constructions")` demonstrates both
+on the real corpus with w and k sensitivity checks. 136 tests; check
+0 / 0 / 1 environmental NOTE. Version 0.2.0.
+
 - **Windowed sequence hyperedges** — `text_hypergraph(construction =
   "window", w = )`: the HyperGAT construction, weighted/windowed extension.
   No upstream oracle; invariant-gated (window-count conservation; `w = 2`

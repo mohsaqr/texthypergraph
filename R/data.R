@@ -17,3 +17,20 @@
 #' hg <- text_hypergraph(covid_abstracts, column = "abstract", id = "doc")
 #' hg
 "covid_abstracts"
+
+#' Sentence embeddings of the COVID-19 abstracts
+#'
+#' Sentence embeddings of [covid_abstracts]' abstract texts, computed with
+#' the `sbert` package's pinned `all-MiniLM-L6-v2` model (L2-normalized
+#' rows). Bundled so that `text_hypergraph(construction = "knn")` runs
+#' offline; rebuilt by `data-raw/covid_embeddings.R`.
+#'
+#' @format A numeric matrix with 165 rows (rownames = `covid_abstracts$doc`)
+#'   and 384 columns.
+#' @source Computed from [covid_abstracts] with `sbert::encode()`.
+#' @examples
+#' hg <- text_hypergraph(covid_abstracts, column = "abstract", id = "doc",
+#'                       construction = "knn", k = 10,
+#'                       embeddings = covid_embeddings)
+#' hg
+"covid_embeddings"
