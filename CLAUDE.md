@@ -15,11 +15,14 @@ repo to its role (equivalence oracle vs guiding reference).
 
 - **This package owns**: text → hypergraph constructions
   (`text_hypergraph()`), text-facing tidy verbs (`hg_*`), corpora, vignettes.
-- **Nestimate** (Imports, r-universe) owns every engine: `bipartite_groups()`,
-  `hypergraph_measures()`, `hypergraph_centrality()`, `hypergraph_cluster()`,
-  `hypergraph_transduction()`, `hypergraph_laplacian()`. Verbs here are thin
-  delegates returning tidy data.frames — no numerical machinery in this
-  package, ever.
+- **Nestimate** (Imports, r-universe) is a FROZEN dependency (2026-08-25:
+  Nestimate is not being expanded). Its shipped engines are delegated to
+  as-is: `bipartite_groups()`, `hypergraph_measures()`,
+  `hypergraph_centrality()`, `hypergraph_cluster()`,
+  `hypergraph_transduction()`, `hypergraph_laplacian()`, `wtna()`. New
+  numerical methods (v0.3+: EDVW random-walk centrality, dual, null models)
+  are implemented HERE with their own oracle/invariant gates — never added
+  to Nestimate, and never duplicating an engine it already ships.
 - **sbert** (Suggests, planned v0.2) provides native embeddings for the kNN
   construction; every verb must also accept precomputed embeddings.
 - Oracles (HyperNetX, XGI, HyperG, gudhi) are used reticulate/local-only in

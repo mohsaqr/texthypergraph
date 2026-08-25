@@ -13,13 +13,15 @@ classification exists in R at all, not even non-neural Zhou 2006).
 
 - `texthypergraph` owns: text → hypergraph **constructions**, text-facing
   analysis verbs, corpora, vignettes.
-- `Nestimate` (Imports, via mohsaqr.r-universe.dev) keeps the engines it
-  already ships: `bipartite_groups()`, `hypergraph_measures()`,
-  `hypergraph_centrality()` (CEC + tensor Z/H), the Zhou/Hayashi Laplacian
-  trio (clustering / transduction / embedding), `clique_expansion()`.
+- `Nestimate` (Imports, via mohsaqr.r-universe.dev) is a **frozen
+  dependency** (decision 2026-08-25: Nestimate is not being expanded). Its
+  shipped engines are used as-is: `bipartite_groups()`,
+  `hypergraph_measures()`, `hypergraph_centrality()` (CEC + tensor Z/H),
+  the Zhou/Hayashi Laplacian trio, `clique_expansion()`, `wtna()`.
+  **Every NEW method is implemented in texthypergraph**, with its own
+  oracle/invariant gates — nothing new goes into Nestimate.
 - `sbert` (Suggests) is the native embedding front-end; every verb also
   accepts a precomputed `embeddings` matrix so the package runs offline.
-- `Saqrlab` gets the random hypergraph samplers (calibration studies).
 - Oracles (local-only, never dependencies): HyperNetX (EDVW Laplacian,
   verified author-adjacent), XGI (tensor centralities), HyperG (unweighted
   constructions/samplers), gudhi (wasserstein). Full map: `repos/README.md`.
@@ -78,15 +80,26 @@ on the real corpus with w and k sensitivity checks. 136 tests; check
   axis, encoder-dependence reported per model.
 - Gate: construction oracles/invariants + a real-corpus vignette for each.
 
-## v0.3 — Theory completions (land in Nestimate, surfaced here)
+## v0.3 — Theory completions (implemented HERE; Nestimate frozen)
 
-- Chitra & Raphael (2019) edge-dependent random-walk centrality/PageRank —
-  falsification invariant: edge-independent weights collapse to the
-  plain-graph walk.
-- `wasserstein_distance()` + `dual_hypergraph()` (oracles: SimplicialComplex,
-  gudhi; HyperG for the dual).
-- Saqrlab samplers (oracle `HyperG::sample_*`) → calibration/power vignette
-  here.
+- **Hypergraph random-walk centrality / PageRank with edge-dependent vertex
+  weights** (Chitra & Raphael 2019) — new code in this package
+  (`hg_pagerank()` or an `hg_centrality()` type). Oracles: HyperNetX
+  `prob_trans()`/`get_pi()` (author-adjacent EDVW walk, reticulate,
+  local_testing_and_equivalence/ only) + the falsification invariant from
+  their theorem: edge-INdependent weights must collapse to the plain-graph
+  random walk (testable against igraph/base PageRank on the clique
+  expansion).
+- **`dual_hypergraph()`** — swap the vertex/hyperedge roles of an existing
+  hypergraph without re-tokenizing (the `nodes = "doc"/"word"` flip as a
+  verb on fitted objects). Oracle: `HyperG::dual_hypergraph` (unweighted
+  support), local-only.
+- **Null-model calibration** — degree-preserving randomization of the
+  incidence for significance-testing `hg_measures()` quantities on text
+  hypergraphs (replaces the deferred Saqrlab sampler route; Saqrlab and
+  wasserstein items are PARKED, not planned).
+- Gate: same discipline — hand-computed fixtures, invariants, oracle
+  scripts, real-corpus vignette.
 
 ## v1.0 — CRAN + the paper
 
