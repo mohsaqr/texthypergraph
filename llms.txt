@@ -173,6 +173,13 @@ methods.
 - [`hg_null_test()`](https://mohsaqr.github.io/texthypergraph/reference/hg_null_test.md)
   : Degree-preserving null-model test of hypergraph structure
 
+## Neural tier
+
+Hypergraph neural networks in native R torch.
+
+- [`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md)
+  : Hypergraph neural network classifier (HGNN)
+
 ## Spectral engines
 
 The in-package Zhou (2006) and Hayashi (2020) machinery behind the

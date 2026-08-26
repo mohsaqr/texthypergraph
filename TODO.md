@@ -77,6 +77,25 @@ code — documentation of an existing path.
 Nestimate’s `local_testing_and_equivalence/test-equiv-hypergraph.R`
 alongside the existing igraph/clean-room references.
 
+## texthypergraph (this package)
+
+DONE 2026-08-25 v0.5: benchmark harness (R8/R52/MR/Ohsumed/20NG, TextGCN
+splits) + `normalization = "class_mass"` on the transduction verbs (Zhu
+et al. 2003; raw Zhou argmax collapses onto the majority class under
+imbalanced seeds). Results: `benchmarks/RESULTS.md` and the pkgdown
+benchmarks article.
+
+DONE 2026-08-26 v0.6 stage 1: **HGNN natively in {torch}**
+([`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md),
+Feng et al. 2019). Oracles: in-package Zhou operator identity (1e-12) +
+official DHG `HGNNConv` forward parity (2.4e-7). Package-best R8/R52/MR;
+20NG/Ohsumed stay with transduction.
+
+**HyperGAT** (Ding et al. 2020): document-level hypergraphs (sentence +
+LDA-topic hyperedges, words as nodes) with dual node/edge attention —
+the expected answer to the 20NG/Ohsumed gap. Oracle: the official repo’s
+model code (kaize0409), forward parity with fixed weights.
+
 ## Saqrlab (simulation)
 
 Random hypergraph samplers (gnp, SBM, k-uniform/regular) — oracle

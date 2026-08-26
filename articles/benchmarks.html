@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -751,22 +751,202 @@ spreading does. Few labels help the case for structure, but they do not
 overturn the class balance effect.</p>
 </div>
 <div class="section level2">
+<h2 id="the-neural-tier-hgnn">The neural tier: HGNN<a class="anchor" aria-label="anchor" href="#the-neural-tier-hgnn"></a>
+</h2>
+<p><code><a href="../reference/hg_neural.html">hg_neural()</a></code> trains the two-layer hypergraph
+convolutional network of Feng et al. (2019) natively in R ({torch}), on
+the same sparse document–word hypergraph and tf-idf features. Its
+propagation matrix is exactly the Zhou operator the transductive
+classifier spreads with – verified to machine precision in the tests,
+with forward-pass parity against the official implementation (DHG) at
+float32 precision. Training is stochastic, so every number is the mean
+of three seeds (SD and range shown); each run holds out 10% of the seeds
+(stratified) to pick the best epoch. Two configurations are reported:
+the original paper’s (<code>lr = 0.001</code>, 200 epochs, tuned for
+citation graphs with dense features) and the package default
+(<code>lr = 0.01</code>, 600 epochs, selected by validation accuracy for
+high-dimensional sparse text features).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">neural</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"benchmark-neural.csv"</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">neural</span>,</span>
+<span>         select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="va">epochs</span>, <span class="va">lr</span>, <span class="va">accuracy</span>, <span class="va">sd</span>, <span class="va">acc_min</span>, <span class="va">acc_max</span>,</span>
+<span>                    <span class="va">macro_f1</span>, <span class="va">fit_s</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="11%">
+<col width="9%">
+<col width="8%">
+<col width="12%">
+<col width="9%">
+<col width="11%">
+<col width="11%">
+<col width="12%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">dataset</th>
+<th align="right">epochs</th>
+<th align="right">lr</th>
+<th align="right">accuracy</th>
+<th align="right">sd</th>
+<th align="right">acc_min</th>
+<th align="right">acc_max</th>
+<th align="right">macro_f1</th>
+<th align="right">fit_s</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">20ng</td>
+<td align="right">600</td>
+<td align="right">0.010</td>
+<td align="right">0.5355</td>
+<td align="right">0.0155</td>
+<td align="right">0.5260</td>
+<td align="right">0.5534</td>
+<td align="right">0.4998</td>
+<td align="right">840.9963</td>
+</tr>
+<tr class="even">
+<td align="left">20ng</td>
+<td align="right">200</td>
+<td align="right">0.001</td>
+<td align="right">0.6347</td>
+<td align="right">0.0089</td>
+<td align="right">0.6257</td>
+<td align="right">0.6435</td>
+<td align="right">0.6031</td>
+<td align="right">171.4803</td>
+</tr>
+<tr class="odd">
+<td align="left">R8</td>
+<td align="right">600</td>
+<td align="right">0.010</td>
+<td align="right">0.9539</td>
+<td align="right">0.0044</td>
+<td align="right">0.9511</td>
+<td align="right">0.9589</td>
+<td align="right">0.8491</td>
+<td align="right">79.9967</td>
+</tr>
+<tr class="even">
+<td align="left">R8</td>
+<td align="right">200</td>
+<td align="right">0.001</td>
+<td align="right">0.9202</td>
+<td align="right">0.0049</td>
+<td align="right">0.9146</td>
+<td align="right">0.9237</td>
+<td align="right">0.6366</td>
+<td align="right">25.7847</td>
+</tr>
+<tr class="odd">
+<td align="left">R52</td>
+<td align="right">600</td>
+<td align="right">0.010</td>
+<td align="right">0.8440</td>
+<td align="right">0.0013</td>
+<td align="right">0.8431</td>
+<td align="right">0.8454</td>
+<td align="right">0.2168</td>
+<td align="right">439.9200</td>
+</tr>
+<tr class="even">
+<td align="left">R52</td>
+<td align="right">200</td>
+<td align="right">0.001</td>
+<td align="right">0.7714</td>
+<td align="right">0.0051</td>
+<td align="right">0.7667</td>
+<td align="right">0.7769</td>
+<td align="right">0.0893</td>
+<td align="right">33.6647</td>
+</tr>
+<tr class="odd">
+<td align="left">ohsumed</td>
+<td align="right">600</td>
+<td align="right">0.010</td>
+<td align="right">0.4093</td>
+<td align="right">0.0306</td>
+<td align="right">0.3740</td>
+<td align="right">0.4286</td>
+<td align="right">0.1611</td>
+<td align="right">121.4023</td>
+</tr>
+<tr class="even">
+<td align="left">ohsumed</td>
+<td align="right">200</td>
+<td align="right">0.001</td>
+<td align="right">0.3814</td>
+<td align="right">0.0014</td>
+<td align="right">0.3799</td>
+<td align="right">0.3826</td>
+<td align="right">0.1357</td>
+<td align="right">40.1323</td>
+</tr>
+<tr class="odd">
+<td align="left">mr</td>
+<td align="right">600</td>
+<td align="right">0.010</td>
+<td align="right">0.7692</td>
+<td align="right">0.0045</td>
+<td align="right">0.7642</td>
+<td align="right">0.7729</td>
+<td align="right">0.7684</td>
+<td align="right">52.3480</td>
+</tr>
+<tr class="even">
+<td align="left">mr</td>
+<td align="right">200</td>
+<td align="right">0.001</td>
+<td align="right">0.7671</td>
+<td align="right">0.0034</td>
+<td align="right">0.7648</td>
+<td align="right">0.7710</td>
+<td align="right">0.7668</td>
+<td align="right">17.4503</td>
+</tr>
+</tbody>
+</table>
+<p>The tuned configuration lifts R8 to 0.9539 (above the centroid’s
+0.9246; published TextGCN 0.9707) and R52 to 0.8440 (a 32-point jump
+over transduction’s 0.5284, though still under the centroid), and holds
+MR at 0.7692 – the best number in this article for that dataset. On
+Ohsumed and 20NG, however, HGNN underperforms the closed-form
+transduction at every configuration tested (20NG: 0.5355 tuned, 0.6347
+at paper defaults, vs 0.8477 for transduction). The loss curves say this
+is not an optimization failure alone: the corpus-level document-node
+design oversmooths – two rounds of propagation through high-degree word
+hyperedges blur exactly the distinctions 20 newsgroups need. The
+literature’s answer is document-level hypergraphs with attention over
+hyperedges (HyperGAT), which is the next stage of the package
+roadmap.</p>
+</div>
+<div class="section level2">
 <h2 id="when-to-use-which">When to use which<a class="anchor" aria-label="anchor" href="#when-to-use-which"></a>
 </h2>
 <p>Use <code>hg_classify(normalization = "class_mass")</code> when
 classes are roughly balanced or labels are scarce, and always over the
 raw argmax: the raw rule’s majority-class collapse on skewed seeds is
 total. Use <code>type = "random_walk"</code> when tf-idf weights should
-shape the walk itself; it was best on Ohsumed here. For skewed
-many-class corpora with plentiful labels, a tf-idf centroid is the
-stronger, cheaper choice, and the trained graph models (TextGCN,
-HyperGAT) hold the published state of the art. The package’s
-contribution is that the transductive rows above run natively in R, in
-seconds, from two verbs.</p>
+shape the walk itself; it was best on Ohsumed here. Use
+<code><a href="../reference/hg_neural.html">hg_neural()</a></code> when plentiful labels can pay for training: it
+holds the package’s best R8 (0.9539), R52 (0.8440) and MR (0.7692)
+numbers, but do not expect it to beat the closed-form classifier on
+every corpus – on 20NG it does not, at any configuration tested. For
+skewed many-class corpora a tf-idf centroid remains a strong, nearly
+free baseline, and the trained graph models (TextGCN, HyperGAT) hold the
+published state of the art. The package’s contribution is that every
+non-published row above runs natively in R – the transductive ones in
+seconds, the neural ones in minutes on a CPU – each from one verb.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>Feng, Y., You, H., Zhang, Z., Ji, R., &amp; Gao, Y. (2019).
+Hypergraph neural networks. <em>AAAI 33</em>.</p>
 <p>Ding, K., Wang, J., Li, J., Li, D., &amp; Liu, H. (2020). Be more
 with less: Hypergraph attention networks for inductive text
 classification. <em>EMNLP 2020</em>.</p>

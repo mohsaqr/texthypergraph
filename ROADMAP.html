@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,7 @@
 </ul></div>
 <div class="section level2">
 <h2 id="v06--neural-tier-hypergraph-gnns-natively-in-r-torch-suggests">v0.6 — Neural tier: hypergraph GNNs natively in R ({torch}, Suggests)<a class="anchor" aria-label="anchor" href="#v06--neural-tier-hypergraph-gnns-natively-in-r-torch-suggests"></a></h2>
+<p><strong>Status 2026-08-26: HGNN SHIPPED</strong> (<code><a href="reference/hg_neural.html">hg_neural()</a></code>, torch in Suggests, version 0.6.0). Verified four ways: propagation == Zhou operator from the in-package spectral core (1e-12); hand-computed weighted factorization; forward parity vs the official DHG <code>HGNNConv</code> at 2.4e-7 (local_testing_and_equivalence/test-equiv-hgnn-dhg.R — note DHG deduplicates identical hyperedges); mutation check. Benchmarks (3 seeds): R8 0.9539, R52 0.8440, MR 0.7692 — package-best on all three; Ohsumed and 20NG stay below closed-form transduction at every configuration tested (corpus-level doc-node design oversmooths; see the pkgdown article). HyperGAT (document-level hypergraphs + dual attention) is the open half of this stage and the expected answer to the 20NG/Ohsumed gap.</p>
 <p>The no-neural rule is LIFTED (user decision 2026-08-25). First hypergraph GNNs in R, no Python:</p>
 <ul><li>HGNN (Feng 2019): spectral convolution on the Zhou Laplacian — the simplest layer, first.</li>
 <li>HyperGAT (Ding 2020): dual node-level/edge-level attention.</li>
