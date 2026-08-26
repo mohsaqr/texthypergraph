@@ -20,6 +20,10 @@ reference:
   - hg_cluster
   - hg_classify
   - hg_null_test
+- title: Neural tier
+  desc: Hypergraph neural networks in native R torch.
+  contents:
+  - hg_neural
 - title: Spectral engines
   desc: The in-package Zhou (2006) and Hayashi (2020) machinery behind the verbs.
   contents:
