@@ -300,3 +300,41 @@ bench_lowlabel <- function(name, fractions = c(0.01, 0.05, 0.1, 0.2),
     n_draws = n_draws
   )
 }
+
+# HGNN (hg_neural) on one dataset: full published split, n_seeds runs
+# (neural training is stochastic -- house rule: never a single seed),
+# 90/10 stratified validation inside the training labels, accuracy and
+# macro-F1 reported as mean and SD over seeds. No giant-component
+# restriction: propagation is defined on disconnected hypergraphs.
+bench_neural <- function(name, hidden = 128L, epochs = 600L, lr = 0.01,
+                         n_seeds = 3L, weight = c("tfidf", "n"),
+                         dir = file.path("benchmarks", "data")) {
+  weight <- match.arg(weight)
+  corpus <- bench_load(name, dir)
+  docs <- corpus$text
+  names(docs) <- corpus$id
+  hg <- texthypergraph::text_hypergraph(
+    docs, weight = weight, stop_words = character(0), sparse = TRUE
+  )
+  train <- corpus[corpus$split == "train" & corpus$id %in% hg$nodes, ]
+  seeds <- train$label
+  names(seeds) <- train$id
+  test <- corpus[corpus$split == "test", ]
+  one <- function(s) {
+    t_fit <- system.time(
+      fit <- texthypergraph::hg_neural(hg, labels = seeds, hidden = hidden,
+                                       epochs = epochs, lr = lr, seed = s)
+    )[["elapsed"]]
+    predicted <- fit$predicted[match(test$id, fit$node)]
+    cbind(.bench_score(test$label, predicted), data.frame(fit_s = t_fit))
+  }
+  runs <- do.call(rbind, lapply(seq_len(n_seeds), one))
+  data.frame(
+    dataset = name, method = "hgnn", weight = weight,
+    hidden = hidden, epochs = epochs, lr = lr, n_seeds = n_seeds,
+    n_train = sum(corpus$split == "train"), n_test = nrow(test),
+    accuracy = mean(runs$accuracy), sd = sd(runs$accuracy),
+    acc_min = min(runs$accuracy), acc_max = max(runs$accuracy),
+    macro_f1 = mean(runs$macro_f1), fit_s = mean(runs$fit_s)
+  )
+}

@@ -39,3 +39,19 @@ if (file.exists(lowlabel_file)) {
                 fmt(r$accuracy), fmt(r$sd)))
   }))
 }
+
+neural_files <- file.path(results_dir, c("neural.csv", "neural_default.csv"))
+neural_files <- neural_files[file.exists(neural_files)]
+if (length(neural_files) > 0L) {
+  neural <- do.call(rbind, lapply(neural_files, utils::read.csv))
+  cat("\n| Dataset | Method | Accuracy (mean of seeds) | SD | Range |",
+      "Macro-F1 | Fit (s) |\n")
+  cat("|---|---|---|---|---|---|---|\n")
+  nord <- order(match(neural$dataset, c("20ng", "R8", "R52", "ohsumed", "mr")))
+  invisible(lapply(seq_len(nrow(neural)), \(i) {
+    r <- neural[nord, ][i, ]
+    cat(sprintf("| %s | hgnn (%d ep, lr %.3g) | %s | %s | [%s, %s] | %s | %.0f |\n",
+                r$dataset, r$epochs, r$lr, fmt(r$accuracy), fmt(r$sd),
+                fmt(r$acc_min), fmt(r$acc_max), fmt(r$macro_f1), r$fit_s))
+  }))
+}

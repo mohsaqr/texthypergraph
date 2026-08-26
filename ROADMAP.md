@@ -148,6 +148,18 @@ fraction on MR only. Version 0.5.0.
 
 ## v0.6 — Neural tier: hypergraph GNNs natively in R ({torch}, Suggests)
 
+**Status 2026-08-26: HGNN SHIPPED** (`hg_neural()`, torch in Suggests,
+version 0.6.0). Verified four ways: propagation == Zhou operator from the
+in-package spectral core (1e-12); hand-computed weighted factorization;
+forward parity vs the official DHG `HGNNConv` at 2.4e-7
+(local_testing_and_equivalence/test-equiv-hgnn-dhg.R — note DHG
+deduplicates identical hyperedges); mutation check. Benchmarks (3 seeds):
+R8 0.9539, R52 0.8440, MR 0.7692 — package-best on all three; Ohsumed and
+20NG stay below closed-form transduction at every configuration tested
+(corpus-level doc-node design oversmooths; see the pkgdown article).
+HyperGAT (document-level hypergraphs + dual attention) is the open half
+of this stage and the expected answer to the 20NG/Ohsumed gap.
+
 The no-neural rule is LIFTED (user decision 2026-08-25). First hypergraph
 GNNs in R, no Python:
 
