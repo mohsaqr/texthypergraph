@@ -70,3 +70,33 @@ test_that("contract violations raise classed or plain errors", {
   expect_error(hg_null_test(42), class = "thg_bad_input")
   expect_error(hg_null_test(hg, n = 5))
 })
+
+test_that("direct null statistics equal the delegated measures path", {
+  set.seed(11)
+  m <- matrix(rbinom(12 * 30, 1, 0.3), nrow = 12,
+              dimnames = list(paste0("d", seq_len(12)),
+                              paste0("w", seq_len(30))))
+  # drop empty rows/columns so the rebuilt hypergraph matches exactly
+  m <- m[rowSums(m) > 0, colSums(m) > 0]
+  stats <- c("density", "avg_edge_size", "pairwise_participation",
+             "avg_jaccard")
+  fast <- .thg_null_statistics(m, stats)
+  nz <- which(m > 0, arr.ind = TRUE)
+  long <- data.frame(vertex = rownames(m)[nz[, "row"]],
+                     edge = colnames(m)[nz[, "col"]], w = 1)
+  ref_hg <- Nestimate::bipartite_groups(long, player = "vertex",
+                                        group = "edge", weight = "w")
+  s_tab <- hg_measures(ref_hg, what = "summary")
+  expect_equal(unname(fast["density"]),
+               subset(s_tab, measure == "density")$value,
+               tolerance = 1e-12)
+  expect_equal(unname(fast["avg_edge_size"]),
+               subset(s_tab, measure == "avg_edge_size")$value,
+               tolerance = 1e-12)
+  expect_equal(unname(fast["pairwise_participation"]),
+               subset(s_tab, measure == "pairwise_participation")$value,
+               tolerance = 1e-12)
+  expect_equal(unname(fast["avg_jaccard"]),
+               mean(hg_measures(ref_hg, what = "overlap")$jaccard),
+               tolerance = 1e-12)
+})

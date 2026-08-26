@@ -104,3 +104,73 @@ test_that("hg_centrality sort_by and n select without user-side subsetting", {
     "clique"
   )
 })
+
+# ---- hg_cluster what= and hg_keywords ----------------------------------
+
+test_that("hg_cluster returns embedding and eigenvalues via `what`", {
+  hg <- text_hypergraph(c(
+    cooking_1 = "simmer the soup with onions and carrots",
+    cooking_2 = "this soup recipe needs salt on a cold night",
+    space_1 = "the telescope revealed a distant galaxy and stars",
+    space_2 = "astronomers aimed the telescope at the stars all night"
+  ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"))
+  parts <- hg_cluster(hg, k = 2, seed = 1)
+  emb <- hg_cluster(hg, k = 2, seed = 1, what = "embedding")
+  expect_named(emb, c("node", "cluster", "pi", "dim1", "dim2"))
+  expect_identical(emb$cluster, parts$cluster)
+  expect_identical(emb$node, parts$node)
+  eig <- hg_cluster(hg, k = 2, seed = 1, what = "eigenvalues")
+  expect_named(eig, c("index", "value"))
+  expect_identical(nrow(eig), hg$n_nodes)
+  expect_true(all(diff(eig$value) >= -1e-12))  # ascending spectrum
+})
+
+test_that("hg_keywords matches a hand-computed fixture", {
+  hg <- text_hypergraph(c(
+    cooking_1 = "simmer the soup with onions and carrots",
+    cooking_2 = "this soup recipe needs salt on a cold night",
+    space_1 = "the telescope revealed a distant galaxy and stars",
+    space_2 = "astronomers aimed the telescope at the stars all night"
+  ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"),
+  weight = "n")
+  clusters <- data.frame(node = c("cooking_1", "cooking_2",
+                                  "space_1", "space_2"),
+                         cluster = c("food", "food", "sky", "sky"))
+  kw <- hg_keywords(hg, clusters, n = Inf)
+  # hand: "soup" count 1+1 in food, 0 in sky -> score 2, share 1
+  food_soup <- subset(kw, cluster == "food" & word == "soup")
+  expect_identical(food_soup$rank, 1L)
+  expect_identical(food_soup$score, 2)
+  expect_identical(food_soup$share, 1)
+  # hand: "night" once in each cluster -> share 0.5 both sides
+  expect_identical(subset(kw, cluster == "food" & word == "night")$share, 0.5)
+  expect_identical(subset(kw, cluster == "sky" & word == "night")$share, 0.5)
+  # "telescope" is sky-only, count 2
+  sky_tel <- subset(kw, cluster == "sky" & word == "telescope")
+  expect_identical(sky_tel$score, 2)
+  expect_identical(sky_tel$share, 1)
+  # invariant: with every node assigned and n = Inf, per-word scores sum
+  # to the word's total corpus mass
+  total_by_word <- tapply(kw$score, kw$word, sum)
+  expect_equal(as.numeric(total_by_word[colnames(hg$incidence)]),
+               as.numeric(colSums(hg$incidence)), tolerance = 1e-12)
+  expect_true(all(kw$share > 0 & kw$share <= 1))
+})
+
+test_that("hg_keywords works on sparse hypergraphs and vector input", {
+  hg <- text_hypergraph(c(
+    cooking_1 = "simmer the soup with onions and carrots",
+    cooking_2 = "this soup recipe needs salt on a cold night",
+    space_1 = "the telescope revealed a distant galaxy and stars",
+    space_2 = "astronomers aimed the telescope at the stars all night"
+  ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"),
+  weight = "n", sparse = TRUE)
+  labels <- c(cooking_1 = "food", cooking_2 = "food",
+              space_1 = "sky", space_2 = "sky")
+  kw <- hg_keywords(hg, labels, n = 2)
+  expect_identical(nrow(kw), 4L)
+  expect_true(all(kw$rank %in% c(1L, 2L)))
+  expect_error(hg_keywords(hg, c(zz = "a", cooking_1 = "b")),
+               class = "thg_bad_input")
+  expect_error(hg_keywords(hg, labels, n = 0), "positive")
+})

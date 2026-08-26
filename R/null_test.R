@@ -31,24 +31,37 @@
   m
 }
 
-# Statistics on the binary membership, computed through the delegated
-# measures so no formula is duplicated.
+# Statistics on the binary membership, computed directly from sparse
+# cross-products. The delegated path (rebuild the hypergraph, take
+# hg_measures(what = "overlap")) materializes a table quadratic in the
+# hyperedge count on EVERY null replicate and dominated the test's
+# runtime (measured: 4.4 s per replicate on 165 x 4043; the direct path
+# is ~50 ms). Numerical identity with the delegated path is asserted in
+# tests/testthat/test-null.R.
 .thg_null_statistics <- function(m, statistic) {
-  nz <- which(m > 0, arr.ind = TRUE)
-  long <- data.frame(
-    vertex = rownames(m)[nz[, "row"]],
-    edge = colnames(m)[nz[, "col"]],
-    w = 1
-  )
-  hg <- Nestimate::bipartite_groups(long, player = "vertex", group = "edge",
-                                    weight = "w")
-  summary_tab <- hg_measures(hg, what = "summary")
+  m_sparse <- Matrix::Matrix(m, sparse = TRUE) * 1
+  sizes <- as.numeric(Matrix::colSums(m_sparse))
+  n_nodes <- nrow(m)
+  n_edges <- ncol(m)
   vapply(statistic, \(s) {
-    if (identical(s, "avg_jaccard")) {
-      mean(hg_measures(hg, what = "overlap")$jaccard)
-    } else {
-      summary_tab$value[summary_tab$measure == s]
-    }
+    switch(s,
+      density = sum(sizes) / (n_nodes * n_edges),
+      avg_edge_size = mean(sizes),
+      pairwise_participation = {
+        co <- methods::as(Matrix::tcrossprod(m_sparse), "TsparseMatrix")
+        sharing <- sum(co@i < co@j & co@x > 0)
+        sharing / (n_nodes * (n_nodes - 1) / 2)
+      },
+      avg_jaccard = {
+        co <- methods::as(Matrix::crossprod(m_sparse), "TsparseMatrix")
+        keep <- co@i < co@j & co@x > 0
+        inter <- co@x[keep]
+        s_i <- sizes[co@i[keep] + 1L]
+        s_j <- sizes[co@j[keep] + 1L]
+        sum(inter / (s_i + s_j - inter)) / (n_edges * (n_edges - 1) / 2)
+      },
+      stop("unknown statistic: ", s)
+    )
   }, numeric(1))
 }
 

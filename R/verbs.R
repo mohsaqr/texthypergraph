@@ -146,8 +146,17 @@ hg_centrality <- function(hg, type = c("clique", "Z", "H"),
 #' @param seed Random seed passed to the engine's k-means step; set it for a
 #'   reproducible partition.
 #' @param nstart Number of k-means starts (default `25L`).
-#' @return A base `data.frame`, one row per node, with columns `node` and
-#'   `cluster`.
+#' @param what What to return: `"clusters"` (default) for the partition,
+#'   `"embedding"` for the partition plus the row-normalized spectral
+#'   embedding used by k-means (`dim1..dimk` -- plot these to map the
+#'   corpus) and the stationary weight `pi`, or `"eigenvalues"` for the
+#'   Laplacian spectrum (dense engines return all `n` values; the sparse
+#'   engine returns the `k + 1` it computed -- raise `k` for an eigengap
+#'   scan).
+#' @return A base `data.frame`. For `what = "clusters"`: one row per node,
+#'   columns `node` and `cluster`. For `what = "embedding"`: `node`,
+#'   `cluster`, `pi`, `dim1..dimk`. For `what = "eigenvalues"`: one row
+#'   per eigenvalue, columns `index` and `value` (ascending).
 #' @examples
 #' hg <- text_hypergraph(c(
 #'   cooking_1 = "simmer the soup with onions and carrots",
@@ -156,11 +165,15 @@ hg_centrality <- function(hg, type = c("clique", "Z", "H"),
 #'   space_2 = "astronomers aimed the telescope at the stars all night"
 #' ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"))
 #' hg_cluster(hg, k = 2, type = "random_walk", seed = 1)
+#' hg_cluster(hg, k = 2, seed = 1, what = "embedding")
+#' hg_cluster(hg, k = 2, seed = 1, what = "eigenvalues")
 #' @export
 hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
-                       nstart = 25L) {
+                       nstart = 25L,
+                       what = c("clusters", "embedding", "eigenvalues")) {
   .thg_check_hg(hg)
   type <- match.arg(type)
+  what <- match.arg(what)
   fit <- if (.thg_is_sparse(hg)) {
     .thg_sparse_cluster(hg, k = k, type = type, edge_weights = NULL,
                         nstart = nstart, seed = seed)
@@ -168,7 +181,98 @@ hg_cluster <- function(hg, k, type = c("zhou", "random_walk"), seed = NULL,
     hypergraph_cluster(hg, k = k, type = type, seed = seed,
                        nstart = nstart)
   }
-  out <- fit$clusters
+  if (identical(what, "eigenvalues")) {
+    return(data.frame(index = seq_along(fit$eigenvalues),
+                      value = as.numeric(fit$eigenvalues)))
+  }
+  out <- if (identical(what, "embedding")) {
+    as.data.frame(fit)
+  } else {
+    fit$clusters
+  }
+  rownames(out) <- NULL
+  out
+}
+
+#' Characteristic hyperedges (keywords) per cluster
+#'
+#' For a clustered hypergraph, ranks each cluster's hyperedges by the
+#' incidence weight mass its member nodes place on them. On a
+#' `nodes = "doc"` [text_hypergraph()] this is per-topic keyword
+#' extraction: a word's score in a cluster is the summed (tf-idf) weight
+#' it receives from that cluster's documents, and `share` is the fraction
+#' of the word's total corpus mass concentrated in the cluster --
+#' `score` finds the cluster's heavy vocabulary, `share` its distinctive
+#' vocabulary.
+#'
+#' @param hg The hypergraph the clustering was computed on.
+#' @param clusters The tidy table returned by [hg_cluster()] (columns
+#'   `node`, `cluster`), or a named vector of cluster labels.
+#' @param n Keywords per cluster (default `10`); `Inf` returns all.
+#' @return A base `data.frame`, one row per cluster-keyword pair, columns
+#'   `cluster`, `rank`, `word` (the hyperedge name), `score` (in-cluster
+#'   weight mass) and `share` (`score` divided by the hyperedge's total
+#'   mass), ranked by `score` within cluster with ties broken
+#'   alphabetically.
+#' @examples
+#' hg <- text_hypergraph(c(
+#'   cooking_1 = "simmer the soup with onions and carrots",
+#'   cooking_2 = "this soup recipe needs salt on a cold night",
+#'   space_1 = "the telescope revealed a distant galaxy and stars",
+#'   space_2 = "astronomers aimed the telescope at the stars all night"
+#' ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"))
+#' topics <- hg_cluster(hg, k = 2, seed = 1)
+#' hg_keywords(hg, topics, n = 3)
+#' @export
+hg_keywords <- function(hg, clusters, n = 10L) {
+  .thg_check_hg(hg)
+  stopifnot(
+    "`n` must be a single positive number" =
+      length(n) == 1L && is.numeric(n) && n >= 1
+  )
+  assignment <- if (is.data.frame(clusters)) {
+    stopifnot(
+      "`clusters` needs `node` and `cluster` columns (from hg_cluster())" =
+        all(c("node", "cluster") %in% names(clusters))
+    )
+    stats::setNames(clusters$cluster, clusters$node)
+  } else {
+    stopifnot(
+      "`clusters` must be a data.frame or a named vector" =
+        !is.null(names(clusters))
+    )
+    clusters
+  }
+  unknown <- setdiff(names(assignment), hg$nodes)
+  if (length(unknown) > 0L) {
+    stop(errorCondition(
+      paste0("Unknown node names in `clusters`: ",
+             paste(unknown, collapse = ", ")),
+      class = "thg_bad_input", call = NULL
+    ))
+  }
+  groups <- factor(as.character(assignment)[match(hg$nodes,
+                                                  names(assignment))])
+  assigned <- which(!is.na(groups))
+  indicator <- Matrix::sparseMatrix(
+    i = as.integer(groups[assigned]), j = assigned, x = 1,
+    dims = c(nlevels(groups), length(hg$nodes))
+  )
+  mass <- as.matrix(indicator %*% hg$incidence)
+  dimnames(mass) <- list(levels(groups), colnames(hg$incidence))
+  total <- as.numeric(Matrix::colSums(hg$incidence))
+  per_cluster <- lapply(levels(groups), \(cl) {
+    scores <- mass[cl, ]
+    ord <- order(-scores, names(scores))
+    keep <- utils::head(ord[scores[ord] > 0], n)
+    data.frame(
+      cluster = cl, rank = seq_along(keep), word = names(scores)[keep],
+      score = as.numeric(scores[keep]),
+      share = as.numeric(scores[keep] / total[keep]),
+      stringsAsFactors = FALSE
+    )
+  })
+  out <- do.call(rbind, per_cluster)
   rownames(out) <- NULL
   out
 }

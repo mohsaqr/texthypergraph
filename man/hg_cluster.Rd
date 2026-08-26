@@ -4,7 +4,14 @@
 \alias{hg_cluster}
 \title{Spectral clustering of a hypergraph, as a tidy table}
 \usage{
-hg_cluster(hg, k, type = c("zhou", "random_walk"), seed = NULL, nstart = 25L)
+hg_cluster(
+  hg,
+  k,
+  type = c("zhou", "random_walk"),
+  seed = NULL,
+  nstart = 25L,
+  what = c("clusters", "embedding", "eigenvalues")
+)
 }
 \arguments{
 \item{hg}{A \code{\link[=text_hypergraph]{text_hypergraph()}} (or any Nestimate \code{net_hypergraph}).}
@@ -19,10 +26,20 @@ default).}
 reproducible partition.}
 
 \item{nstart}{Number of k-means starts (default \code{25L}).}
+
+\item{what}{What to return: \code{"clusters"} (default) for the partition,
+\code{"embedding"} for the partition plus the row-normalized spectral
+embedding used by k-means (\code{dim1..dimk} -- plot these to map the
+corpus) and the stationary weight \code{pi}, or \code{"eigenvalues"} for the
+Laplacian spectrum (dense engines return all \code{n} values; the sparse
+engine returns the \code{k + 1} it computed -- raise \code{k} for an eigengap
+scan).}
 }
 \value{
-A base \code{data.frame}, one row per node, with columns \code{node} and
-\code{cluster}.
+A base \code{data.frame}. For \code{what = "clusters"}: one row per node,
+columns \code{node} and \code{cluster}. For \code{what = "embedding"}: \code{node},
+\code{cluster}, \code{pi}, \code{dim1..dimk}. For \code{what = "eigenvalues"}: one row
+per eigenvalue, columns \code{index} and \code{value} (ascending).
 }
 \description{
 Calls the in-package \code{\link[=hypergraph_cluster]{hypergraph_cluster()}} engine (Zhou et al. 2006 normalized
@@ -38,4 +55,6 @@ hg <- text_hypergraph(c(
   space_2 = "astronomers aimed the telescope at the stars all night"
 ), stop_words = c("the", "with", "and", "a", "this", "at", "on", "all"))
 hg_cluster(hg, k = 2, type = "random_walk", seed = 1)
+hg_cluster(hg, k = 2, seed = 1, what = "embedding")
+hg_cluster(hg, k = 2, seed = 1, what = "eigenvalues")
 }
