@@ -13,7 +13,7 @@ text hypergraphs)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,14 @@ text hypergraphs).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hg_cluster</span><span class="op">(</span><span class="va">hg</span>, <span class="va">k</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zhou"</span>, <span class="st">"random_walk"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, nstart <span class="op">=</span> <span class="fl">25L</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hg_cluster</span><span class="op">(</span></span>
+<span>  <span class="va">hg</span>,</span>
+<span>  <span class="va">k</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zhou"</span>, <span class="st">"random_walk"</span><span class="op">)</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nstart <span class="op">=</span> <span class="fl">25L</span>,</span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"clusters"</span>, <span class="st">"embedding"</span>, <span class="st">"eigenvalues"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -82,11 +89,23 @@ reproducible partition.</p></dd>
 <dt id="arg-nstart">nstart<a class="anchor" aria-label="anchor" href="#arg-nstart"></a></dt>
 <dd><p>Number of k-means starts (default <code>25L</code>).</p></dd>
 
+
+<dt id="arg-what">what<a class="anchor" aria-label="anchor" href="#arg-what"></a></dt>
+<dd><p>What to return: <code>"clusters"</code> (default) for the partition,
+<code>"embedding"</code> for the partition plus the row-normalized spectral
+embedding used by k-means (<code>dim1..dimk</code> – plot these to map the
+corpus) and the stationary weight <code>pi</code>, or <code>"eigenvalues"</code> for the
+Laplacian spectrum (dense engines return all <code>n</code> values; the sparse
+engine returns the <code>k + 1</code> it computed – raise <code>k</code> for an eigengap
+scan).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A base <code>data.frame</code>, one row per node, with columns <code>node</code> and
-<code>cluster</code>.</p>
+    <p>A base <code>data.frame</code>. For <code>what = "clusters"</code>: one row per node,
+columns <code>node</code> and <code>cluster</code>. For <code>what = "embedding"</code>: <code>node</code>,
+<code>cluster</code>, <code>pi</code>, <code>dim1..dimk</code>. For <code>what = "eigenvalues"</code>: one row
+per eigenvalue, columns <code>index</code> and <code>value</code> (ascending).</p>
     </div>
 
     <div class="section level2">
@@ -103,6 +122,18 @@ reproducible partition.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 cooking_2 Cluster 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   space_1 Cluster 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   space_2 Cluster 2</span>
+<span class="r-in"><span><span class="fu">hg_cluster</span><span class="op">(</span><span class="va">hg</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span>, what <span class="op">=</span> <span class="st">"embedding"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        node   cluster   pi      dim1       dim2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 cooking_1 Cluster 1 0.20 0.5695852  0.8219323</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 cooking_2 Cluster 1 0.30 0.8513708  0.5245643</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   space_1 Cluster 2 0.25 0.6550598 -0.7555770</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   space_2 Cluster 2 0.25 0.8037070 -0.5950253</span>
+<span class="r-in"><span><span class="fu">hg_cluster</span><span class="op">(</span><span class="va">hg</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span>, what <span class="op">=</span> <span class="st">"eigenvalues"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   index         value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     1 -5.551115e-17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     2  7.162811e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3  2.448142e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     4  4.752244e-01</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

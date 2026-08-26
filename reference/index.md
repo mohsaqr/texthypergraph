@@ -26,6 +26,8 @@ methods.
   : Hypergraph PageRank with edge-dependent vertex weights
 - [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)
   : Spectral clustering of a hypergraph, as a tidy table
+- [`hg_keywords()`](https://mohsaqr.github.io/texthypergraph/reference/hg_keywords.md)
+  : Characteristic hyperedges (keywords) per cluster
 - [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
   : Transductive label spreading on a hypergraph, as a tidy table
 - [`hg_null_test()`](https://mohsaqr.github.io/texthypergraph/reference/hg_null_test.md)
