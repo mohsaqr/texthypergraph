@@ -1,7 +1,7 @@
 # Structural measures of a hypergraph, as tidy tables
 
 Delegates to
-[`Nestimate::hypergraph_measures()`](https://saqr.me/Nestimate/reference/hypergraph_measures.html)
+[`Nestimate::hypergraph_measures()`](https://pak.dynasite.org/Nestimate/reference/hypergraph_measures.html)
 and returns the requested slice as a tidy data.frame.
 
 ## Usage
@@ -15,7 +15,7 @@ hg_measures(hg, what = c("nodes", "edges", "overlap", "summary"))
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   (or any Nestimate `net_hypergraph`).
 
 - what:

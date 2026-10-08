@@ -8,7 +8,7 @@ size) and randomizes the memberships by checkerboard swaps (Gotelli
 thinning `nnz` between samples, `nnz` being the number of memberships.
 Statistics are evaluated on the binarized hypergraph (weights carry no
 meaning under this null), through the same delegated measures as
-[`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md).
+[`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md).
 
 ## Usage
 
@@ -27,8 +27,8 @@ hg_null_test(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md),
-  [`knn_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/knn_hypergraph.md),
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md),
+  [`knn_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/knn_hypergraph.md),
   or any Nestimate `net_hypergraph`.
 
 - statistic:

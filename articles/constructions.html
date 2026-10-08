@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ content — the set of words co-occurring within <code>window</code>
 tokens of each other — is one hyperedge, weighted by its window count.
 This is the sequential construction of Ding et al. (2020, Sec. 3.2),
 extended with weights; with <code>window = 2</code> its off-diagonal
-pairwise counts provably match <code><a href="https://saqr.me/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code>
+pairwise counts provably match <code><a href="https://pak.dynasite.org/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code>
 co-occurrence (a shipped package test).</p>
 <p>The 2020 abstracts make a compact testbed:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -102,6 +102,14 @@ co-occurrence (a shipped package test).</p>
 <span>  stop_words <span class="op">=</span> <span class="va">stops</span>,</span>
 <span>  min_count <span class="op">=</span> <span class="fl">3L</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Registered S3 methods overwritten by 'Nestimate':</span></span>
+<span><span class="co">#&gt;   method                                    from          </span></span>
+<span><span class="co">#&gt;   as.data.frame.net_hypergraph_cluster      texthypergraph</span></span>
+<span><span class="co">#&gt;   as.data.frame.net_hypergraph_transduction texthypergraph</span></span>
+<span><span class="co">#&gt;   print.net_hypergraph_cluster              texthypergraph</span></span>
+<span><span class="co">#&gt;   print.net_hypergraph_transduction         texthypergraph</span></span>
+<span><span class="co">#&gt;   summary.net_hypergraph_cluster            texthypergraph</span></span>
+<span><span class="co">#&gt;   summary.net_hypergraph_transduction       texthypergraph</span></span>
 <span><span class="va">windowed</span></span>
 <span><span class="co">#&gt; Text hypergraph: 40 documents, 349 words (windowed hyperedges: w = 3, sliding, 2000 windows)</span></span>
 <span><span class="co">#&gt; Hyperedges: 1880 (distinct windows); sizes 2-3, median 3</span></span></code></pre></div>

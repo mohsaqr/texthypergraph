@@ -18,10 +18,10 @@ measures delegate to `Nestimate`.
 
 ## From corpus to hypergraph
 
-[`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+[`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
 tokenizes deterministically in base R, counts document–word occurrences,
 and hands the weighted incidence structure to
-[`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html).
+[`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html).
 Function words and a few corpus-boilerplate terms are excluded, and
 words in fewer than three abstracts are dropped — a word seen once
 cannot connect anything.
@@ -42,6 +42,14 @@ hg <- text_hypergraph(
   stop_words = stops,
   min_count = 3L
 )
+#> Registered S3 methods overwritten by 'Nestimate':
+#>   method                                    from          
+#>   as.data.frame.net_hypergraph_cluster      texthypergraph
+#>   as.data.frame.net_hypergraph_transduction texthypergraph
+#>   print.net_hypergraph_cluster              texthypergraph
+#>   print.net_hypergraph_transduction         texthypergraph
+#>   summary.net_hypergraph_cluster            texthypergraph
+#>   summary.net_hypergraph_transduction       texthypergraph
 hg
 #> Text hypergraph: 165 documents, 1453 words (documents as nodes, weight = tfidf)
 #> Hyperedges: 1453 (words); sizes 1-140, median 4
@@ -105,7 +113,7 @@ without reading a single abstract.
 
 ## Do the abstracts cluster?
 
-[`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)
+[`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md)
 with `type = "random_walk"` is the Hayashi et al. (2020) pipeline: the
 tf-idf weights become edge-dependent vertex weights of a random walk,
 whose normalized Laplacian is embedded and clustered. The number of
@@ -209,7 +217,7 @@ honest about how little the structure supports.
 ## Ranking, dualizing, and testing the structure
 
 Three verbs complete the analysis layer.
-[`hg_pagerank()`](https://mohsaqr.github.io/texthypergraph/reference/hg_pagerank.md)
+[`hg_pagerank()`](https://pak.dynasite.org/texthypergraph/reference/hg_pagerank.md)
 ranks vertices by the stationary importance of the Chitra & Raphael
 (2019) random walk with edge-dependent vertex weights – the walk that
 actually uses the tf-idf weights (verified against the HyperNetX
@@ -227,7 +235,7 @@ hg_pagerank(hg, sort_by = "pagerank", n = 3)
 The top-ranked abstracts are the corpus’s connective tissue – documents
 whose vocabulary reaches everywhere. A `personalized =` vector turns the
 same verb into “importance from the perspective of these documents”.
-[`dual_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/dual_hypergraph.md)
+[`dual_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/dual_hypergraph.md)
 swaps the vertex and hyperedge roles of a fitted object, so the
 word-level view never requires re-tokenizing:
 
@@ -239,7 +247,7 @@ dual_hypergraph(hg)
 ```
 
 Finally,
-[`hg_null_test()`](https://mohsaqr.github.io/texthypergraph/reference/hg_null_test.md)
+[`hg_null_test()`](https://pak.dynasite.org/texthypergraph/reference/hg_null_test.md)
 asks whether observed structure exceeds what the degree sequences alone
 imply: it rewires the binary membership by degree-preserving
 checkerboard swaps (Gotelli 2000) and compares. On the 2020 abstracts:
@@ -279,7 +287,7 @@ report a structural statistic without its null interval.
 
 ## Using an existing quanteda or tidytext pipeline
 
-[`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+[`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
 needs no NLP dependency, but any long document–word table is already the
 incidence structure, so existing pipelines plug into the same engines
 directly:
@@ -302,18 +310,18 @@ Nestimate::bipartite_groups(
 
 ## When to use which
 
-- **[`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)**
+- **[`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md)**
   — no labels, discover thematic groups; prefer `type = "random_walk"`
   whenever the weights are tf-idf (edge-dependent vertex weights are
   exactly its assumption).
-- **[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)**
+- **[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)**
   — a few trusted labels, classify the rest; read `margin` as the
   confidence and expect conservative behavior when the vocabulary signal
   is weak.
-- **[`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md)**
+- **[`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md)**
   — rank organizing vocabulary (words as nodes) or hub documents
   (documents as nodes).
-- **[`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md)**
+- **[`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md)**
   — the structural facts (sizes, overlaps, density) that say whether
   spectral analysis is even applicable; check connectivity-adjacent
   quantities before clustering.

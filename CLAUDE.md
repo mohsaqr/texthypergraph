@@ -16,16 +16,16 @@ oracle vs guiding reference).
 ## Ownership contract (never duplicate)
 
 - **This package owns**: text → hypergraph constructions
-  ([`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)),
+  ([`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)),
   text-facing tidy verbs (`hg_*`), corpora, vignettes.
 - **Nestimate** (Imports, r-universe) is a FROZEN dependency
   (2026-08-25). Only its PUBLISHED engines are delegated to:
   `bipartite_groups()`, `hypergraph_measures()`,
   `hypergraph_centrality()`, `wtna()`, `clique_expansion()`. The
   spectral trio
-  ([`hypergraph_laplacian()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_laplacian.md),
-  [`hypergraph_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_cluster.md),
-  [`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md))
+  ([`hypergraph_laplacian()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_laplacian.md),
+  [`hypergraph_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_cluster.md),
+  [`hypergraph_transduction()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_transduction.md))
   was MIGRATED into this package (`R/spectral.R` +
   `tests/testthat/test-spectral.R`) on 2026-08-25: it existed only
   uncommitted in Nestimate’s working tree, never in its published
@@ -55,7 +55,7 @@ lacks the family packages. Nestimate \>= 0.9.0 must be installed.
 
 - `R/text_hypergraph.R` — constructor: base-R deterministic tokenization
   → document–word counts →
-  [`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html).
+  [`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html).
   Key design points: `nodes = c("doc", "word")` picks the vertex set
   (docs-as-nodes default = the Hayashi 2020 document-clustering
   orientation; words-as-nodes = the HyperGAT orientation);
@@ -67,10 +67,10 @@ lacks the family packages. Nestimate \>= 0.9.0 must be installed.
   `as.data.frame(hg, what = "weights" | "documents" | "vocabulary")`,
   never by `$`-reaching in user code.
 - `R/verbs.R` —
-  [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md),
-  [`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md),
-  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
-  [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md):
+  [`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md),
+  [`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md),
+  [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md),
+  [`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md):
   validate with `.thg_check_hg()`, delegate, tidy. Parity with direct
   engine calls is asserted by
   [`identical()`](https://rdrr.io/r/base/identical.html) in tests.
@@ -81,7 +81,7 @@ lacks the family packages. Nestimate \>= 0.9.0 must be installed.
 ## Conventions and gotchas
 
 - **Connectivity**:
-  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)/[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
+  [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md)/[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)
   inherit Nestimate’s classed `nestimate_hypergraph_disconnected` error.
   Doc-mode corpora are connected only if shared words chain every
   document — test/example corpora use a deliberate bridge word

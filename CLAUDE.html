@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@
 <div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
 <ul><li>
-<code>R/text_hypergraph.R</code> — constructor: base-R deterministic tokenization → document–word counts → <code><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code>. Key design points: <code>nodes = c("doc", "word")</code> picks the vertex set (docs-as-nodes default = the Hayashi 2020 document-clustering orientation; words-as-nodes = the HyperGAT orientation); <code>weight = "tfidf"</code> uses the <em>smoothed</em> idf <code>log((1+N)/(1+df)) + 1</code> so no weight is ever zero (a zero would silently disconnect a vertex). Returns class <code>c("text_hypergraph", "net_hypergraph")</code> — Nestimate verbs accept it directly. Corpus tables live in <code>$text</code> and are reached via <code>as.data.frame(hg, what = "weights" | "documents" | "vocabulary")</code>, never by <code>$</code>-reaching in user code.</li>
+<code>R/text_hypergraph.R</code> — constructor: base-R deterministic tokenization → document–word counts → <code><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code>. Key design points: <code>nodes = c("doc", "word")</code> picks the vertex set (docs-as-nodes default = the Hayashi 2020 document-clustering orientation; words-as-nodes = the HyperGAT orientation); <code>weight = "tfidf"</code> uses the <em>smoothed</em> idf <code>log((1+N)/(1+df)) + 1</code> so no weight is ever zero (a zero would silently disconnect a vertex). Returns class <code>c("text_hypergraph", "net_hypergraph")</code> — Nestimate verbs accept it directly. Corpus tables live in <code>$text</code> and are reached via <code>as.data.frame(hg, what = "weights" | "documents" | "vocabulary")</code>, never by <code>$</code>-reaching in user code.</li>
 <li>
 <code>R/verbs.R</code> — <code><a href="reference/hg_measures.html">hg_measures()</a></code>, <code><a href="reference/hg_centrality.html">hg_centrality()</a></code>, <code><a href="reference/hg_cluster.html">hg_cluster()</a></code>, <code><a href="reference/hg_classify.html">hg_classify()</a></code>: validate with <code>.thg_check_hg()</code>, delegate, tidy. Parity with direct engine calls is asserted by <code><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical()</a></code> in tests.</li>
 <li>Condition classes are namespaced <code>thg_*</code> (<code>thg_bad_input</code>, <code>thg_empty_corpus</code>, <code>thg_dropped_documents</code>); tests assert classes, not messages.</li>

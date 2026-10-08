@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,7 +121,7 @@
 <tr>
 <td><code><a href="reference/text_hypergraph.html">text_hypergraph()</a></code></td>
 <td>corpus → weighted hypergraph (counts or smoothed tf-idf; stop words; <code>min_count</code>)</td>
-<td><code><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code></td>
 </tr>
 <tr>
 <td><code><a href="reference/hg_cluster.html">hg_cluster()</a></code></td>
@@ -139,16 +139,16 @@
 <td><code><a href="reference/hg_centrality.html">hg_centrality()</a></code></td>
 <td>clique-expansion + tensor Z/H eigenvector centralities, with <code>sort_by</code>/<code>n</code>
 </td>
-<td><code><a href="https://saqr.me/Nestimate/reference/hypergraph_centrality.html" class="external-link">Nestimate::hypergraph_centrality()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/hypergraph_centrality.html" class="external-link">Nestimate::hypergraph_centrality()</a></code></td>
 </tr>
 <tr>
 <td><code><a href="reference/hg_measures.html">hg_measures()</a></code></td>
 <td>tidy structural tables: nodes, edges, overlaps, summary</td>
-<td><code><a href="https://saqr.me/Nestimate/reference/hypergraph_measures.html" class="external-link">Nestimate::hypergraph_measures()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/hypergraph_measures.html" class="external-link">Nestimate::hypergraph_measures()</a></code></td>
 </tr>
 </tbody>
 </table>
-<p>Two further constructions use word order and embedding space (<code><a href="articles/constructions.html">vignette("constructions")</a></code>): <code>construction = "window"</code> makes every token window a hyperedge (the HyperGAT sequential construction, weighted; its w = 2 off-diagonal counts provably match <code><a href="https://saqr.me/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code>), and <code>construction = "knn"</code> builds each document’s k-nearest-neighbor hyperedge from sbert embeddings — the bundled <code>covid_embeddings</code> matrix keeps it offline, and <code>knn_hypergraph(embeddings, k)</code> takes any embedding matrix directly (binary support verified against <code>HyperG::knn_hypergraph</code>).</p>
+<p>Two further constructions use word order and embedding space (<code><a href="articles/constructions.html">vignette("constructions")</a></code>): <code>construction = "window"</code> makes every token window a hyperedge (the HyperGAT sequential construction, weighted; its w = 2 off-diagonal counts provably match <code><a href="https://pak.dynasite.org/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code>), and <code>construction = "knn"</code> builds each document’s k-nearest-neighbor hyperedge from sbert embeddings — the bundled <code>covid_embeddings</code> matrix keeps it offline, and <code>knn_hypergraph(embeddings, k)</code> takes any embedding matrix directly (binary support verified against <code>HyperG::knn_hypergraph</code>).</p>
 <p><code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on a text hypergraph returns the tidy weight table; <code>what = "documents"</code> and <code>what = "vocabulary"</code> return the other two corpus tables.</p>
 <p>The full worked analysis — clustering, a <code>k</code> sensitivity check, few-label classification and its honest limits — is the package vignette:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -159,7 +159,7 @@
 </h2>
 <p>Any long document–word table is already the incidence structure; no conversion layer is needed (see the vignette’s bridge section):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span><span class="fu">tidytext</span><span class="fu">::</span><span class="fu">tidy</span><span class="op">(</span><span class="va">my_dfm</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span><span class="fu">tidytext</span><span class="fu">::</span><span class="fu">tidy</span><span class="op">(</span><span class="va">my_dfm</span><span class="op">)</span>,</span>
 <span>                            player <span class="op">=</span> <span class="st">"term"</span>, group <span class="op">=</span> <span class="st">"document"</span>,</span>
 <span>                            weight <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span></span></code></pre></div>
 </div>

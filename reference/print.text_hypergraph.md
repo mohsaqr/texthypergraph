@@ -14,7 +14,7 @@ print(x, ...)
 - x:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   object.
 
 - ...:

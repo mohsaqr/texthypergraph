@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,7 @@ structural measures delegate to <code>Nestimate</code>.</p>
 </h2>
 <p><code><a href="../reference/text_hypergraph.html">text_hypergraph()</a></code> tokenizes deterministically in base R,
 counts document–word occurrences, and hands the weighted incidence
-structure to <code><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code>. Function words
+structure to <code><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">Nestimate::bipartite_groups()</a></code>. Function words
 and a few corpus-boilerplate terms are excluded, and words in fewer than
 three abstracts are dropped — a word seen once cannot connect
 anything.</p>
@@ -105,6 +105,14 @@ anything.</p>
 <span>  stop_words <span class="op">=</span> <span class="va">stops</span>,</span>
 <span>  min_count <span class="op">=</span> <span class="fl">3L</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Registered S3 methods overwritten by 'Nestimate':</span></span>
+<span><span class="co">#&gt;   method                                    from          </span></span>
+<span><span class="co">#&gt;   as.data.frame.net_hypergraph_cluster      texthypergraph</span></span>
+<span><span class="co">#&gt;   as.data.frame.net_hypergraph_transduction texthypergraph</span></span>
+<span><span class="co">#&gt;   print.net_hypergraph_cluster              texthypergraph</span></span>
+<span><span class="co">#&gt;   print.net_hypergraph_transduction         texthypergraph</span></span>
+<span><span class="co">#&gt;   summary.net_hypergraph_cluster            texthypergraph</span></span>
+<span><span class="co">#&gt;   summary.net_hypergraph_transduction       texthypergraph</span></span>
 <span><span class="va">hg</span></span>
 <span><span class="co">#&gt; Text hypergraph: 165 documents, 1453 words (documents as nodes, weight = tfidf)</span></span>
 <span><span class="co">#&gt; Hyperedges: 1453 (words); sizes 1-140, median 4</span></span></code></pre></div>
@@ -311,13 +319,13 @@ pipelines plug into the same engines directly:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># quanteda: tidytext::tidy() turns a dfm into a long table with columns</span></span>
 <span><span class="co"># document, term, count (verified against quanteda 4.x / tidytext 0.4.x)</span></span>
-<span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span></span>
+<span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span></span>
 <span>  <span class="fu">tidytext</span><span class="fu">::</span><span class="fu">tidy</span><span class="op">(</span><span class="va">my_dfm</span><span class="op">)</span>,</span>
 <span>  player <span class="op">=</span> <span class="st">"term"</span>, group <span class="op">=</span> <span class="st">"document"</span>, weight <span class="op">=</span> <span class="st">"count"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># tidytext: word counts are already long (document, word, n)</span></span>
-<span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span></span>
+<span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html" class="external-link">bipartite_groups</a></span><span class="op">(</span></span>
 <span>  <span class="va">my_word_counts</span>,</span>
 <span>  player <span class="op">=</span> <span class="st">"word"</span>, group <span class="op">=</span> <span class="st">"document"</span>, weight <span class="op">=</span> <span class="st">"n"</span></span>
 <span><span class="op">)</span></span></code></pre></div>

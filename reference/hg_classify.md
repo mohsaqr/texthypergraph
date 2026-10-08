@@ -1,7 +1,7 @@
 # Transductive label spreading on a hypergraph, as a tidy table
 
 Calls the in-package
-[`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md)
+[`hypergraph_transduction()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_transduction.md)
 engine (Zhou et al. 2006): labels known for a few nodes spread over the
 hypergraph structure to classify every node.
 
@@ -22,7 +22,7 @@ hg_classify(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   (or any Nestimate `net_hypergraph`).
 
 - labels:
@@ -33,7 +33,7 @@ hg_classify(
 - xi, type:
 
   Passed to
-  [`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md).
+  [`hypergraph_transduction()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_transduction.md).
 
 - normalization:
 

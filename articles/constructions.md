@@ -1,7 +1,7 @@
 # Windowed and embedding hypergraphs
 
 The bag-of-words hypergraph of
-[`vignette("texthypergraph")`](https://mohsaqr.github.io/texthypergraph/articles/texthypergraph.md)
+[`vignette("texthypergraph")`](https://pak.dynasite.org/texthypergraph/articles/texthypergraph.md)
 ignores two things a corpus knows: the *order* of words within a
 document and the *position* of documents in an embedding space. Two
 further constructions use them. The question for each is the same: does
@@ -16,7 +16,7 @@ set of words co-occurring within `window` tokens of each other — is one
 hyperedge, weighted by its window count. This is the sequential
 construction of Ding et al. (2020, Sec. 3.2), extended with weights;
 with `window = 2` its off-diagonal pairwise counts provably match
-[`Nestimate::wtna()`](https://saqr.me/Nestimate/reference/wtna.html)
+[`Nestimate::wtna()`](https://pak.dynasite.org/Nestimate/reference/wtna.html)
 co-occurrence (a shipped package test).
 
 The 2020 abstracts make a compact testbed:
@@ -39,6 +39,14 @@ windowed <- text_hypergraph(
   stop_words = stops,
   min_count = 3L
 )
+#> Registered S3 methods overwritten by 'Nestimate':
+#>   method                                    from          
+#>   as.data.frame.net_hypergraph_cluster      texthypergraph
+#>   as.data.frame.net_hypergraph_transduction texthypergraph
+#>   print.net_hypergraph_cluster              texthypergraph
+#>   print.net_hypergraph_transduction         texthypergraph
+#>   summary.net_hypergraph_cluster            texthypergraph
+#>   summary.net_hypergraph_transduction       texthypergraph
 windowed
 #> Text hypergraph: 40 documents, 349 words (windowed hyperedges: w = 3, sliding, 2000 windows)
 #> Hyperedges: 1880 (distinct windows); sizes 2-3, median 3
@@ -161,7 +169,7 @@ aggregate(node ~ cluster, data = knn_clusters, FUN = length)
 
 The embedding hypergraph partitions the corpus into balanced groups
 (41/41/37/46), where the bag-of-words clustering of
-[`vignette("texthypergraph")`](https://mohsaqr.github.io/texthypergraph/articles/texthypergraph.md)
+[`vignette("texthypergraph")`](https://pak.dynasite.org/texthypergraph/articles/texthypergraph.md)
 produced 16/44/29/76 — one dominant residual cluster. Semantic
 neighborhoods spread structure more evenly than shared vocabulary does.
 The two views agree only partially:
@@ -233,13 +241,13 @@ one-argument change when sbert is installed).
 - **`"bag"`** — the default; shared vocabulary, interpretable hyperedges
   (words or documents), tf-idf weighting, the full
   clustering/transduction story of
-  [`vignette("texthypergraph")`](https://mohsaqr.github.io/texthypergraph/articles/texthypergraph.md).
+  [`vignette("texthypergraph")`](https://pak.dynasite.org/texthypergraph/articles/texthypergraph.md).
 - **`"window"`** — when word order carries the signal: phrase
   vocabulary, collocations, sequence-like corpora. Vertices are words;
   use it with
-  [`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md)
+  [`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md)
   and
-  [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md).
+  [`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md).
   Prefer modest corpora or `min_count` filtering — distinct windows
   multiply quickly.
 - **`"knn"`** — when meaning matters more than vocabulary overlap:

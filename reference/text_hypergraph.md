@@ -64,7 +64,7 @@ text_hypergraph(
 
   Optional character vector of words to drop after tokenization
   (compared after lowercasing when `lowercase = TRUE`); see
-  [`stop_words_en()`](https://mohsaqr.github.io/texthypergraph/reference/stop_words_en.md).
+  [`stop_words_en()`](https://pak.dynasite.org/texthypergraph/reference/stop_words_en.md).
   Not applicable to `"knn"`.
 
 - min_count:
@@ -105,11 +105,11 @@ text_hypergraph(
   Store the incidence as a `Matrix::dgCMatrix` (bag construction only,
   default `FALSE`). Sparse hypergraphs scale to tens of thousands of
   documents;
-  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
-  [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md),
-  [`hg_pagerank()`](https://mohsaqr.github.io/texthypergraph/reference/hg_pagerank.md),
+  [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md),
+  [`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md),
+  [`hg_pagerank()`](https://pak.dynasite.org/texthypergraph/reference/hg_pagerank.md),
   and
-  [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md)
+  [`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md)
   use sparse operator paths that agree with the dense engines (tested),
   while tensor centralities and the null test currently require the
   dense representation.
@@ -117,15 +117,15 @@ text_hypergraph(
 ## Value
 
 An object of class `c("text_hypergraph", "net_hypergraph")` – a
-[`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html)
+[`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html)
 hypergraph accepted by every Nestimate hypergraph verb and by
-[`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md),
-[`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md),
-[`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
+[`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md),
+[`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md),
+[`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md),
 and
-[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
+[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)
 – with a `text` field recording the corpus tables. Use
-[`as.data.frame.text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/as.data.frame.text_hypergraph.md)
+[`as.data.frame.text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/as.data.frame.text_hypergraph.md)
 for the tidy weight table, and its `what` argument for the document and
 vocabulary tables.
 
@@ -156,7 +156,7 @@ vocabulary tables.
 - `construction = "knn"`: documents are vertices and each document plus
   its `k` nearest neighbors in an embedding space is one hyperedge,
   weighted by cosine similarity (see
-  [`knn_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/knn_hypergraph.md)).
+  [`knn_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/knn_hypergraph.md)).
   Pass a precomputed `embeddings` matrix, or leave it `NULL` to encode
   the text with the `sbert` package (if installed; models download only
   on explicit user confirmation, per sbert's policy).

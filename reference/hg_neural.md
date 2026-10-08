@@ -31,7 +31,7 @@ hg_neural(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   (or any Nestimate `net_hypergraph`), dense or sparse.
 
 - labels:

@@ -30,8 +30,8 @@ hg_pagerank(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md),
-  [`knn_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/knn_hypergraph.md),
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md),
+  [`knn_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/knn_hypergraph.md),
   or any Nestimate `net_hypergraph` (connected when `damping = 1`).
 
 - damping:
@@ -81,7 +81,7 @@ incidence weights differ across the hyperedges a vertex belongs to
 (tested against the closed-form graph stationary distribution). With
 `damping = 1` and default `edge_weights`, the result equals the
 stationary distribution of the Hayashi et al. (2020) EDVW walk used by
-[`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)
+[`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md)
 (tested at `1e-12` against the Nestimate engine).
 
 ## Conditions

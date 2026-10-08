@@ -1,7 +1,7 @@
 # Spectral clustering of a hypergraph, as a tidy table
 
 Calls the in-package
-[`hypergraph_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_cluster.md)
+[`hypergraph_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_cluster.md)
 engine (Zhou et al. 2006 normalized Laplacian, or the Hayashi et al.
 2020 random-walk Laplacian with edge-dependent vertex weights – the
 natural choice for tf-idf-weighted text hypergraphs).
@@ -24,7 +24,7 @@ hg_cluster(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   (or any Nestimate `net_hypergraph`).
 
 - k:
@@ -34,7 +34,7 @@ hg_cluster(
 - type:
 
   `"zhou"` or `"random_walk"`, as in
-  [`hypergraph_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_cluster.md).
+  [`hypergraph_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_cluster.md).
 
 - seed:
 
@@ -85,7 +85,7 @@ hg_cluster(hg, k = 2, seed = 1, what = "embedding")
 #> 4   space_2 Cluster 2 0.25 0.8037070 -0.5950253
 hg_cluster(hg, k = 2, seed = 1, what = "eigenvalues")
 #>   index         value
-#> 1     1 -5.551115e-17
+#> 1     1 -2.081668e-17
 #> 2     2  7.162811e-02
 #> 3     3  2.448142e-01
 #> 4     4  4.752244e-01

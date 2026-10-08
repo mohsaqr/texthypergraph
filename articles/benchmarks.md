@@ -3,7 +3,7 @@
 How far does closed-form hypergraph label spreading go on the five
 standard text-classification benchmarks? This article reports test-set
 accuracy of `text_hypergraph(sparse = TRUE)` +
-[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
+[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)
 on R8, R52, MR, Ohsumed, and 20-Newsgroups, against a tf-idf
 nearest-centroid baseline and against the published accuracy tables in
 Ding et al. (2020). Every number below was produced by the harness in
@@ -182,7 +182,7 @@ class balance effect.
 
 ## The neural tier: HGNN
 
-[`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md)
+[`hg_neural()`](https://pak.dynasite.org/texthypergraph/reference/hg_neural.md)
 trains the two-layer hypergraph convolutional network of Feng et
 al. (2019) natively in R ({torch}), on the same sparse document–word
 hypergraph and tf-idf features. Its propagation matrix is exactly the
@@ -240,7 +240,7 @@ balanced or labels are scarce, and always over the raw argmax: the raw
 rule’s majority-class collapse on skewed seeds is total. Use
 `type = "random_walk"` when tf-idf weights should shape the walk itself;
 it was best on Ohsumed here. Use
-[`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md)
+[`hg_neural()`](https://pak.dynasite.org/texthypergraph/reference/hg_neural.md)
 when plentiful labels can pay for training: it holds the package’s best
 R8 (0.9539), R52 (0.8440) and MR (0.7692) numbers, but do not expect it
 to beat the closed-form classifier on every corpus – on 20NG it does

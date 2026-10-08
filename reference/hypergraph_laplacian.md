@@ -5,7 +5,7 @@ Zhou-Huang-Scholkopf form on the binary incidence pattern
 (`type = "zhou"`) or the random-walk form with edge-dependent vertex
 weights (`type = "random_walk"`), in which the weighted incidence cells
 (e.g. the summed weights produced by
-[`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html))
+[`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html))
 determine where a random walker lands inside a hyperedge, and the
 resulting non-reversible walk is symmetrized through its stationary
 distribution (Chung 2005). Both Laplacians are symmetric positive
@@ -23,9 +23,9 @@ hypergraph_laplacian(hg, type = c("zhou", "random_walk"), edge_weights = NULL)
 - hg:
 
   A `net_hypergraph` from
-  [`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html)
+  [`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html)
   or
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md).
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md).
   Must be connected and have at least one hyperedge.
 
 - type:
@@ -76,5 +76,5 @@ hg <- Nestimate::bipartite_groups(events, player = "person", group = "meeting",
                        weight = "hours")
 L <- hypergraph_laplacian(hg, type = "random_walk")
 range(eigen(L, symmetric = TRUE, only.values = TRUE)$values)
-#> [1] -2.899699e-16  1.001279e+00
+#> [1] -1.815497e-16  1.001279e+00
 ```

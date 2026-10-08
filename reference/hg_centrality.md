@@ -1,7 +1,7 @@
 # Hypergraph node centralities, as a tidy table
 
 Delegates to
-[`Nestimate::hypergraph_centrality()`](https://saqr.me/Nestimate/reference/hypergraph_centrality.html):
+[`Nestimate::hypergraph_centrality()`](https://pak.dynasite.org/Nestimate/reference/hypergraph_centrality.html):
 clique-expansion eigenvector centrality and the tensor Z- and
 H-eigenvector centralities.
 
@@ -24,7 +24,7 @@ hg_centrality(
 - hg:
 
   A
-  [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+  [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
   (or any Nestimate `net_hypergraph`).
 
 - type:
@@ -45,7 +45,7 @@ hg_centrality(
 - max_iter, tol, normalize:
 
   Passed to
-  [`Nestimate::hypergraph_centrality()`](https://saqr.me/Nestimate/reference/hypergraph_centrality.html).
+  [`Nestimate::hypergraph_centrality()`](https://pak.dynasite.org/Nestimate/reference/hypergraph_centrality.html).
 
 ## Value
 

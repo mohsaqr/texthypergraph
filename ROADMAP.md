@@ -35,9 +35,9 @@ arbitrary choice (k, window, threshold).
 ## v0.1 — Scaffold + the bridge (no new math)
 
 **Status 2026-08-25: v0.1 COMPLETE.** Skeleton,
-[`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+[`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
 (+ curly-apostrophe normalization),
-[`stop_words_en()`](https://mohsaqr.github.io/texthypergraph/reference/stop_words_en.md),
+[`stop_words_en()`](https://pak.dynasite.org/texthypergraph/reference/stop_words_en.md),
 four delegating verbs (+ `sort_by`/`n` on centrality), `covid_abstracts`
 dataset (165 abstracts, 2020-2024), full worked vignette (clustering +
 k-sensitivity + few-label classification with verified numbers), package
@@ -52,10 +52,10 @@ errors / 0 warnings / 1 environmental NOTE.
   quanteda dfm / tidytext tables accepted as inputs, never
   dependencies).
 - Thin tidy verbs delegating to Nestimate:
-  [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md),
-  [`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md),
-  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
-  [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)
+  [`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md),
+  [`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md),
+  [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md),
+  [`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)
   (transduction), `hg_embed()` — one call, named arguments, tidy
   data.frame returns, print/summary/plot +
   [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) per
@@ -71,15 +71,15 @@ errors / 0 warnings / 1 environmental NOTE.
 **Status 2026-08-25: v0.2 COMPLETE.** Both constructions shipped:
 `text_hypergraph(construction = "window")` (sliding/tumbling, set-valued
 window hyperedges; w = 2 off-diagonal parity with
-[`Nestimate::wtna()`](https://saqr.me/Nestimate/reference/wtna.html)
+[`Nestimate::wtna()`](https://pak.dynasite.org/Nestimate/reference/wtna.html)
 shipped as a package test — diagonals differ by design, wtna counts
 within-window repeats) and `construction = "knn"` +
-[`knn_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/knn_hypergraph.md)
+[`knn_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/knn_hypergraph.md)
 (cosine-weighted, deterministic tie-breaks, classed refusal of
 non-positive similarities; binary support verified identical to
 `HyperG::knn_hypergraph` in local_testing_and_equivalence/).
 `covid_embeddings` bundled (sbert all-MiniLM-L6-v2, 165x384).
-[`vignette("constructions")`](https://mohsaqr.github.io/texthypergraph/articles/constructions.md)
+[`vignette("constructions")`](https://pak.dynasite.org/texthypergraph/articles/constructions.md)
 demonstrates both on the real corpus with w and k sensitivity checks.
 136 tests; check 0 / 0 / 1 environmental NOTE. Version 0.2.0.
 
@@ -103,7 +103,7 @@ demonstrates both on the real corpus with w and k sensitivity checks.
 hg_null_test; 180 tests; check 0/0/1 environmental NOTE; version 0.3.0).
 
 DONE 2026-08-25:
-**[`hg_pagerank()`](https://mohsaqr.github.io/texthypergraph/reference/hg_pagerank.md)**
+**[`hg_pagerank()`](https://pak.dynasite.org/texthypergraph/reference/hg_pagerank.md)**
 (Chitra & Raphael 2019 EDVW walk
 
 - damping/personalization). Four verification layers: direct
@@ -112,13 +112,13 @@ DONE 2026-08-25:
   `get_pi(prob_trans(weights=TRUE))` parity (1.4e-16).
 
 DONE 2026-08-25:
-**[`dual_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/dual_hypergraph.md)**
+**[`dual_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/dual_hypergraph.md)**
 — transpose identity, involution, and dual ==
 opposite-orientation-construction tests shipped; HyperG::dual_hypergraph
 support parity PASS (local).
 
 DONE 2026-08-25:
-**[`hg_null_test()`](https://mohsaqr.github.io/texthypergraph/reference/hg_null_test.md)**
+**[`hg_null_test()`](https://pak.dynasite.org/texthypergraph/reference/hg_null_test.md)**
 — degree-preserving checkerboard null (Gotelli 2000), permutation p
 (Phipson & Smyth 2010), null quantiles + z; margin-conservation and
 blocky-structure detection tests shipped; avg_edge_size invariance as
@@ -166,7 +166,7 @@ go to the centroid — honest both ways. Found + fixed a real method
 defect: raw Zhou argmax collapses onto the majority class under
 imbalanced seeds (R8 0.4947 = the majority-class rate) → new
 `normalization = "class_mass"` argument (Zhu et al. 2003 CMN) on
-[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md)/[`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md),
+[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md)/[`hypergraph_transduction()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_transduction.md),
 fixture + invariance + parity + mutation tested. Low-label study
 (stratified 1-20%, 5 draws): transduction leads the centroid at every
 fraction on MR only. Version 0.5.0.
@@ -180,7 +180,7 @@ fraction on MR only. Version 0.5.0.
 ## v0.6 — Neural tier: hypergraph GNNs natively in R ({torch}, Suggests)
 
 **Status 2026-08-26: HGNN SHIPPED**
-([`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md),
+([`hg_neural()`](https://pak.dynasite.org/texthypergraph/reference/hg_neural.md),
 torch in Suggests, version 0.6.0). Verified four ways: propagation ==
 Zhou operator from the in-package spectral core (1e-12); hand-computed
 weighted factorization; forward parity vs the official DHG `HGNNConv` at

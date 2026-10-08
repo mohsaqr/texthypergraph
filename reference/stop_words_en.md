@@ -2,7 +2,7 @@
 
 A small, fixed list of English function words (articles, prepositions,
 conjunctions, pronouns, auxiliaries) for the `stop_words` argument of
-[`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md).
+[`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md).
 Deliberately minimal and versioned with the package: corpus-specific
 boilerplate (e.g. "study", "results" in an abstract corpus) should be
 added by the caller, as in `c(stop_words_en(), "study", "results")`.

@@ -63,7 +63,7 @@ but k choice is a sensitivity axis) and encoder-dependence reported per
 the house statistical rules.
 
 `wasserstein_distance()` +
-[`dual_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/dual_hypergraph.md)
+[`dual_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/dual_hypergraph.md)
 — see Nestimate COVERAGE-CATCHUP §1/§2.
 
 **NLP bridge vignette**: `quanteda` dfm / `tidytext` long table →
@@ -86,7 +86,7 @@ imbalanced seeds). Results: `benchmarks/RESULTS.md` and the pkgdown
 benchmarks article.
 
 DONE 2026-08-26 v0.6 stage 1: **HGNN natively in {torch}**
-([`hg_neural()`](https://mohsaqr.github.io/texthypergraph/reference/hg_neural.md),
+([`hg_neural()`](https://pak.dynasite.org/texthypergraph/reference/hg_neural.md),
 Feng et al. 2019). Oracles: in-package Zhou operator identity (1e-12) +
 official DHG `HGNNConv` forward parity (2.4e-7). Package-best R8/R52/MR;
 20NG/Ohsumed stay with transduction.

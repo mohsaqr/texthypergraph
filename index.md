@@ -75,18 +75,18 @@ list, as the vignette does with `c(stop_words_en(), "study", ...)`.)
 
 | Verb | Does | Engine |
 |----|----|----|
-| [`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md) | corpus → weighted hypergraph (counts or smoothed tf-idf; stop words; `min_count`) | [`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html) |
-| [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md) | spectral document/word clustering (`"zhou"` or `"random_walk"` EDVW) | in-package [`hypergraph_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_cluster.md) |
-| [`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md) | transductive label spreading from a few labeled nodes | in-package [`hypergraph_transduction()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_transduction.md) |
-| [`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md) | clique-expansion + tensor Z/H eigenvector centralities, with `sort_by`/`n` | [`Nestimate::hypergraph_centrality()`](https://saqr.me/Nestimate/reference/hypergraph_centrality.html) |
-| [`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md) | tidy structural tables: nodes, edges, overlaps, summary | [`Nestimate::hypergraph_measures()`](https://saqr.me/Nestimate/reference/hypergraph_measures.html) |
+| [`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md) | corpus → weighted hypergraph (counts or smoothed tf-idf; stop words; `min_count`) | [`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html) |
+| [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md) | spectral document/word clustering (`"zhou"` or `"random_walk"` EDVW) | in-package [`hypergraph_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_cluster.md) |
+| [`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md) | transductive label spreading from a few labeled nodes | in-package [`hypergraph_transduction()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_transduction.md) |
+| [`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md) | clique-expansion + tensor Z/H eigenvector centralities, with `sort_by`/`n` | [`Nestimate::hypergraph_centrality()`](https://pak.dynasite.org/Nestimate/reference/hypergraph_centrality.html) |
+| [`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md) | tidy structural tables: nodes, edges, overlaps, summary | [`Nestimate::hypergraph_measures()`](https://pak.dynasite.org/Nestimate/reference/hypergraph_measures.html) |
 
 Two further constructions use word order and embedding space
-([`vignette("constructions")`](https://mohsaqr.github.io/texthypergraph/articles/constructions.md)):
+([`vignette("constructions")`](https://pak.dynasite.org/texthypergraph/articles/constructions.md)):
 `construction = "window"` makes every token window a hyperedge (the
 HyperGAT sequential construction, weighted; its w = 2 off-diagonal
 counts provably match
-[`Nestimate::wtna()`](https://saqr.me/Nestimate/reference/wtna.html)),
+[`Nestimate::wtna()`](https://pak.dynasite.org/Nestimate/reference/wtna.html)),
 and `construction = "knn"` builds each document’s k-nearest-neighbor
 hyperedge from sbert embeddings — the bundled `covid_embeddings` matrix
 keeps it offline, and `knn_hypergraph(embeddings, k)` takes any

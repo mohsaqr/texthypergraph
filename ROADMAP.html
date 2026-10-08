@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">texthypergraph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
 </ul></div>
 <div class="section level2">
 <h2 id="v02--text-native-constructions">v0.2 — Text-native constructions<a class="anchor" aria-label="anchor" href="#v02--text-native-constructions"></a></h2>
-<p><strong>Status 2026-08-25: v0.2 COMPLETE.</strong> Both constructions shipped: <code>text_hypergraph(construction = "window")</code> (sliding/tumbling, set-valued window hyperedges; w = 2 off-diagonal parity with <code><a href="https://saqr.me/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code> shipped as a package test — diagonals differ by design, wtna counts within-window repeats) and <code>construction = "knn"</code> + <code><a href="reference/knn_hypergraph.html">knn_hypergraph()</a></code> (cosine-weighted, deterministic tie-breaks, classed refusal of non-positive similarities; binary support verified identical to <code>HyperG::knn_hypergraph</code> in local_testing_and_equivalence/). <code>covid_embeddings</code> bundled (sbert all-MiniLM-L6-v2, 165x384). <code><a href="articles/constructions.html">vignette("constructions")</a></code> demonstrates both on the real corpus with w and k sensitivity checks. 136 tests; check 0 / 0 / 1 environmental NOTE. Version 0.2.0.</p>
+<p><strong>Status 2026-08-25: v0.2 COMPLETE.</strong> Both constructions shipped: <code>text_hypergraph(construction = "window")</code> (sliding/tumbling, set-valued window hyperedges; w = 2 off-diagonal parity with <code><a href="https://pak.dynasite.org/Nestimate/reference/wtna.html" class="external-link">Nestimate::wtna()</a></code> shipped as a package test — diagonals differ by design, wtna counts within-window repeats) and <code>construction = "knn"</code> + <code><a href="reference/knn_hypergraph.html">knn_hypergraph()</a></code> (cosine-weighted, deterministic tie-breaks, classed refusal of non-positive similarities; binary support verified identical to <code>HyperG::knn_hypergraph</code> in local_testing_and_equivalence/). <code>covid_embeddings</code> bundled (sbert all-MiniLM-L6-v2, 165x384). <code><a href="articles/constructions.html">vignette("constructions")</a></code> demonstrates both on the real corpus with w and k sensitivity checks. 136 tests; check 0 / 0 / 1 environmental NOTE. Version 0.2.0.</p>
 <ul><li>
 <strong>Windowed sequence hyperedges</strong> — <code>text_hypergraph(construction = "window", w = )</code>: the HyperGAT construction, weighted/windowed extension. No upstream oracle; invariant-gated (window-count conservation; <code>w = 2</code> reduces exactly to <code>wtna_cooccurrence</code>).</li>
 <li>

@@ -3,7 +3,7 @@
 For a clustered hypergraph, ranks each cluster's hyperedges by the
 incidence weight mass its member nodes place on them. On a
 `nodes = "doc"`
-[`text_hypergraph()`](https://mohsaqr.github.io/texthypergraph/reference/text_hypergraph.md)
+[`text_hypergraph()`](https://pak.dynasite.org/texthypergraph/reference/text_hypergraph.md)
 this is per-topic keyword extraction: a word's score in a cluster is the
 summed (tf-idf) weight it receives from that cluster's documents, and
 `share` is the fraction of the word's total corpus mass concentrated in
@@ -25,7 +25,7 @@ hg_keywords(hg, clusters, n = 10L)
 - clusters:
 
   The tidy table returned by
-  [`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md)
+  [`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md)
   (columns `node`, `cluster`), or a named vector of cluster labels.
 
 - n:

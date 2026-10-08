@@ -45,7 +45,7 @@ hypergraph_transduction(
 - type, edge_weights:
 
   Passed to
-  [`hypergraph_laplacian()`](https://mohsaqr.github.io/texthypergraph/reference/hypergraph_laplacian.md).
+  [`hypergraph_laplacian()`](https://pak.dynasite.org/texthypergraph/reference/hypergraph_laplacian.md).
 
 - normalization:
 

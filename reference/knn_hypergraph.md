@@ -32,14 +32,14 @@ knn_hypergraph(embeddings, k, weight = c("cosine", "binary"))
 ## Value
 
 A `net_hypergraph` (from
-[`Nestimate::bipartite_groups()`](https://saqr.me/Nestimate/reference/bipartite_groups.html))
+[`Nestimate::bipartite_groups()`](https://pak.dynasite.org/Nestimate/reference/bipartite_groups.html))
 with one hyperedge per item, each of size `k + 1`, plus a `knn` field
 recording `k` and the weighting. Accepted by
-[`hg_measures()`](https://mohsaqr.github.io/texthypergraph/reference/hg_measures.md),
-[`hg_centrality()`](https://mohsaqr.github.io/texthypergraph/reference/hg_centrality.md),
-[`hg_cluster()`](https://mohsaqr.github.io/texthypergraph/reference/hg_cluster.md),
+[`hg_measures()`](https://pak.dynasite.org/texthypergraph/reference/hg_measures.md),
+[`hg_centrality()`](https://pak.dynasite.org/texthypergraph/reference/hg_centrality.md),
+[`hg_cluster()`](https://pak.dynasite.org/texthypergraph/reference/hg_cluster.md),
 and
-[`hg_classify()`](https://mohsaqr.github.io/texthypergraph/reference/hg_classify.md).
+[`hg_classify()`](https://pak.dynasite.org/texthypergraph/reference/hg_classify.md).
 
 ## Details
 
